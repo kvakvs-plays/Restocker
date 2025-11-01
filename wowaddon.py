@@ -10,18 +10,18 @@ import subprocess
 import sys
 import zipfile
 
-VERSION = '2024.5.0'  # year.month.build_num
+VERSION = '2025.5.0'  # year.month.build_num
 
 ADDON_NAME = 'Restocker'  # Directory and zip name
 ADDON_NAME_CLASSIC = ADDON_NAME  # Directory and zip name
 ADDON_TITLE_CLASSIC = ADDON_NAME  # Title field in TOC
 ADDON_TITLE_MAINLINE = ADDON_NAME  # Title field in Retail mainline
 
-UI_VERSION_CLASSIC = '11403'  # patch 1.14.3
+UI_VERSION_CLASSIC = '11507'
 UI_VERSION_CLASSIC_TBC = '20504'  # patch 2.5.4 Phase 4 and 5 TBC
-UI_VERSION_CLASSIC_WOTLK = '30402'  # patch 3.4.1 WotLK (TotGC)
-UI_VERSION_CLASSIC_CATA = '40400'  # patch 4.4.0 Cataclysm Classic
-UI_VERSION_CLASSIC_MAINLINE = '100105'  # patch 10.1.5 whatever that is
+UI_VERSION_CLASSIC_WOTLK = '30402'
+UI_VERSION_CLASSIC_CATA = '40402'
+UI_VERSION_CLASSIC_MAINLINE = '110105'
 
 COPY_DIRS = ['Frames', 'Classes', 'Src', 'Ace3']
 COPY_FILES = ['embeds.xml']

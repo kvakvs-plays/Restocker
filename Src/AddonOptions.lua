@@ -40,6 +40,12 @@ addonOptionsModule.language = --[[---@type {[string]:string} ]] {
   ["options.sortList.alphabetic"] = "Alphabetically (by name)",
   ["options.sortList.numeric"] = "Numerically (by item id)",
 
+  ["options.short.slashCommand"] = "Slash command",
+  ["options.long.slashCommand"] = "Choose which slash command to use. Use '/restocker' if '/rs' conflicts with another addon.",
+  ["options.slashCommand.rs"] = "/rs (conflicts with some addons)",
+  ["options.slashCommand.restocker"] = "/restocker only",
+  ["options.slashCommand.both"] = "Both /rs and /restocker",
+
   --["options.category.Restocking"] = "Restocking",
   --
   --["options.short.restockFromMerchant"] = "Restock from merchants",
@@ -128,6 +134,19 @@ function addonOptionsModule:CreateGeneralOptions()
             end
             return "numeric"
           end),
+      slashCommand = self:TemplateSelect("slashCommand", {
+        ["rs"] = _t("options.slashCommand.rs"),
+        ["restocker"] = _t("options.slashCommand.restocker"),
+        ["both"] = _t("options.slashCommand.both"),
+      }, "radio", nil, nil,
+          function(info, value)
+            restockerModule.settings.slashCommand = value
+            RS:RegisterSlashCommands()
+            RS:Print("Slash command changed. Use " .. (value == "both" and "/rs or /restocker" or value == "rs" and "/rs" or "/restocker") .. " to access Restocker.")
+          end,
+          function(info)
+            return restockerModule.settings.slashCommand or "both"
+          end),
       debugMessages = self:TemplateCheckbox("debugMessages", nil, nil, nil),
     }
   }
@@ -183,6 +202,8 @@ function addonOptionsModule:ResetDefaultOptions()
   restockerModule.settings.loginMessage = true
   restockerModule.settings.autoOpenAtMerchant = false
   restockerModule.settings.autoOpenAtBank = false
+  restockerModule.settings.slashCommand = "both"
+  RS:RegisterSlashCommands()
   --restockerModule.settings.restockFromBank = true
   --restockerModule.settings.restockToBank = false
   --restockerModule.settings.restockFromMerchant = true

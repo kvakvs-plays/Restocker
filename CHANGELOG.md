@@ -1,6 +1,8 @@
-## Restocker 2024.5.0
+## Restocker 2024.5.1
 
 - [Cataclysm] Minor version update. Functionality looks like it is not broken.
+- Note to rogues: Sell your pre-cata poisons and buy new, then re-add  
+Restocker rules again. Poisons have changed.
 
 ## Restocker 2023.12.0
 

@@ -8,11 +8,11 @@ local restockerModule = RsModule.restockerModule ---@type RsRestockerModule
 RS.hiddenFrame = CreateFrame("Frame", nil, UIParent)
 RS.hiddenFrame:Hide()
 
----@shape RsControl: WowControl
+---@class RsControl: WowControl
 ---@field width number
 ---@field height number
 
----@shape RsRestockerFrame: RsControl
+---@class RsRestockerFrame: RsControl
 ---@field profileDropDownMenu WowControl
 ---@field editBox RsControl
 ---@field addBtn RsControl
@@ -25,14 +25,15 @@ RS.hiddenFrame:Hide()
 
 function mainFrameModule:CreateAddonFrame()
   local settings = restockerModule.settings
-  local addonFrame = --[[---@type RsRestockerFrame]] CreateFrame("Frame", "RestockerMainFrame", UIParent, "BasicFrameTemplate");
+  local addonFrame = --[[---@type RsRestockerFrame]] CreateFrame("Frame", "RestockerMainFrame", UIParent,
+    "BasicFrameTemplate");
   addonFrame.width = 350
   addonFrame.height = 400
   addonFrame:SetSize(addonFrame.width, addonFrame.height);
   addonFrame:SetPoint(settings.framePos.point or "RIGHT",
-      UIParent, settings.framePos.relativePoint or "RIGHT",
-      settings.framePos.xOfs or -5,
-      settings.framePos.yOfs or 0);
+    UIParent, settings.framePos.relativePoint or "RIGHT",
+    settings.framePos.xOfs or -5,
+    settings.framePos.yOfs or 0);
   addonFrame:SetFrameStrata("FULLSCREEN");
   addonFrame:SetMovable(true)
   addonFrame:EnableMouse(true)
@@ -173,7 +174,8 @@ function mainFrameModule:CreateProfilesDropdown(addonFrame)
   profileText:SetFontObject("GameFontNormal")
   profileText:SetText("Profile:")
 
-  local Restocker_ProfileDropDownMenu = CreateFrame("Frame", "Restocker_ProfileDropDownMenu", addonFrame, "UIDropDownMenuTemplate")
+  local Restocker_ProfileDropDownMenu = CreateFrame("Frame", "Restocker_ProfileDropDownMenu", addonFrame,
+    "UIDropDownMenuTemplate")
   Restocker_ProfileDropDownMenu:SetPoint("LEFT", profileText, "LEFT", 80, 0)
   --Restocker_ProfileDropDownMenu.displayMode = "MENU"
   UIDropDownMenu_SetWidth(Restocker_ProfileDropDownMenu, 120, 500)
@@ -220,7 +222,6 @@ function mainFrameModule:CreateMenu()
   return RS.MainFrame
 end
 
-
 -- Handle shiftclicks of items
 local origChatEdit_InsertLink = ChatEdit_InsertLink;
 ChatEdit_InsertLink = function(link)
@@ -250,7 +251,7 @@ function RS:addItem(text)
     return
   else
     for _, item in ipairs(currentProfile) do
-      if item.itemName:lower() == (--[[---@not nil]] itemInfo).itemName:lower() then
+      if item.itemName:lower() == ( --[[---@not nil]] itemInfo).itemName:lower() then
         return
       end
     end
@@ -258,9 +259,9 @@ function RS:addItem(text)
 
   local buyItem = --[[---@type RsTradeCommand]] {}
 
-  buyItem.itemName = (--[[---@not nil]] itemInfo).itemName
-  buyItem.itemLink = (--[[---@not nil]] itemInfo).itemLink
-  buyItem.itemID = (--[[---@not nil]] itemInfo).itemId
+  buyItem.itemName = ( --[[---@not nil]] itemInfo).itemName
+  buyItem.itemLink = ( --[[---@not nil]] itemInfo).itemLink
+  buyItem.itemID = ( --[[---@not nil]] itemInfo).itemId
   buyItem.amount = 1
 
   table.insert(settings.profiles[settings.currentProfile], buyItem)

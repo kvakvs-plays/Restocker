@@ -310,6 +310,53 @@ function RS:loadSettings()
   if settings.loginMessage == nil then
     settings.loginMessage = true
   end
+
+  -- slashCommand can be "rs", "restocker", or "both" (default "both" for backwards compatibility)
+  if settings.slashCommand == nil then
+    settings.slashCommand = "both"
+  end
+end
+
+--[[
+  REGISTER SLASH COMMANDS
+  Registers slash commands based on the setting: "rs", "restocker", or "both"
+]]
+function RS:RegisterSlashCommands()
+  local settings = restockerModule.settings
+  local slashCommand = settings.slashCommand or "both"
+  
+  -- Unregister existing commands first
+  SLASH_RESTOCKER1 = nil
+  SLASH_RESTOCKER2 = nil
+  SlashCmdList.RESTOCKER = nil
+  
+  -- Register commands based on setting
+  if slashCommand == "rs" then
+    SLASH_RESTOCKER1 = "/rs"
+    RS.defaults.slash = "|cff8d63ff/rs|r "
+  elseif slashCommand == "restocker" then
+    SLASH_RESTOCKER1 = "/restocker"
+    RS.defaults.slash = "|cff8d63ff/restocker|r "
+  else -- "both" or any other value defaults to both
+    SLASH_RESTOCKER1 = "/restocker"
+    SLASH_RESTOCKER2 = "/rs"
+    RS.defaults.slash = "|cff8d63ff/rs|r " -- Default display for help messages
+  end
+  
+  SlashCmdList.RESTOCKER = function(msg)
+    RS:SlashCommand(msg)
+  end
+  
+  -- Update command help text
+  RS.commands.show = RS.defaults.slash .. "show - Show the addon"
+  RS.commands.profile = {
+    add = RS.defaults.slash .. "profile add [name] - Adds a profile with [name]",
+    delete = RS.defaults.slash .. "profile delete [name] - Deletes profile with [name]",
+    rename = RS.defaults.slash .. "profile rename [name] - Renames current profile to [name]",
+    copy = RS.defaults.slash .. "profile copy [name] - Copies profile [name] into current profile.",
+    use = RS.defaults.slash .. "profile use [name] - Switches active profile to [name].",
+    config = RS.defaults.slash .. "config - Opens the interface options menu."
+  }
 end
 
 function RS:Debug(t)
@@ -371,11 +418,7 @@ function RS:OnEnable()
     f:SetScript("OnMouseUp", f.StopMovingOrSizing);
   end
 
-  SLASH_RESTOCKER1 = "/restocker";
-  SLASH_RESTOCKER2 = "/rs";
-  SlashCmdList.RESTOCKER = function(msg)
-    RS:SlashCommand(msg)
-  end
+  RS:RegisterSlashCommands()
 
   -- Options tabs
   --RS:CreateOptionsMenu(TOCNAME)

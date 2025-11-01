@@ -4,7 +4,7 @@ local RS = RS_ADDON ---@type RestockerAddon
 ---@class RsRecipeModule
 local recipeModule = RsModule.recipeModule ---@type RsRecipeModule
 
----@shape RsIngredient
+---@class RsIngredient
 ---@field item RsItem
 ---@field count number
 

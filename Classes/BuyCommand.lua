@@ -5,7 +5,7 @@
 local buyCommandModule = RsModule.buyCommandModule
 
 ---Order to bank-get, bank-put, buy or sell items depending on context
----@shape RsTradeCommand
+---@class RsTradeCommand
 ---@field amount number
 ---@field itemName string
 ---@field itemLink string

@@ -1,4 +1,4 @@
----@shape RsModuleModule
+---@class RsModuleModule
 ---@field addonOptionsModule RsAddonOptionsModule
 ---@field bagModule RsBagModule
 ---@field bankModule RsBankModule
@@ -34,7 +34,7 @@ RsModule = rsModule
 ---module:EarlyModuleInit (called early on startup)
 ---module:LateModuleInit (called late on startup, after entered world)
 function RsModule:CallInEachModule(fnName, context)
-  for _name, module in pairs(--[[---@type table]] rsModule) do
+  for _name, module in pairs( --[[---@type table]] rsModule) do
     -- Only interested in table fields, skip functions
     if module and type(module) == "table" and module[fnName] then
       module[fnName](context)

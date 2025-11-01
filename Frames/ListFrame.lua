@@ -46,27 +46,26 @@ local function rsAmountEditBox(frame, chainTo)
     if bankModule.bankIsOpen then
       eventsModule.OnBankOpen(true)
     end
-
   end);
   editBox:SetScript("OnKeyUp",
-      function(self)
-        local amount = self:GetText()
-        local parent = self:GetParent()
-        local text = parent.text:GetText()
+    function(self)
+      local amount = self:GetText()
+      local parent = self:GetParent()
+      local text = parent.text:GetText()
 
-        if amount == "" then
-          amount = 0;
-        end
+      if amount == "" then
+        amount = 0;
+      end
 
-        for _, item in ipairs(settings.profiles[settings.currentProfile]) do
-          if item.itemName == text then
-            item.amount = --[[---@not nil]] tonumber(amount)
-          end
+      for _, item in ipairs(settings.profiles[settings.currentProfile]) do
+        if item.itemName == text then
+          item.amount = --[[---@not nil]] tonumber(amount)
         end
-      end)
+      end
+    end)
 
   rsTooltip(editBox, "Amount to restock|n"
-      .. restockerModule:Color("ffffff", "Press Enter when finished editing"))
+    .. restockerModule:Color("ffffff", "Press Enter when finished editing"))
 
   frame.editBox = editBox
   frame.isInUse = true
@@ -89,48 +88,48 @@ local function rsRequireReactionEditBox(frame, chainTo)
   reactionBox:SetTextColor(0.8, 0.5, 0.3)
 
   reactionBox:SetScript("OnEnterPressed",
-      function(self)
-        local reaction = self:GetText()
-        local parent = self:GetParent()
-        local text = parent.text:GetText()
+    function(self)
+      local reaction = self:GetText()
+      local parent = self:GetParent()
+      local text = parent.text:GetText()
 
-        if reaction == "" then
-          reaction = 0;
-        end
+      if reaction == "" then
+        reaction = 0;
+      end
 
-        for _, item in ipairs(settings.profiles[settings.currentProfile]) do
-          if item.itemName == text then
-            item.reaction = --[[---@not nil]] tonumber(reaction)
-          end
+      for _, item in ipairs(settings.profiles[settings.currentProfile]) do
+        if item.itemName == text then
+          item.reaction = --[[---@not nil]] tonumber(reaction)
         end
-        reactionBox:ClearFocus()
-        self:SetText(tonumber(reaction));
-        RS:Update()
-      end)
+      end
+      reactionBox:ClearFocus()
+      self:SetText(tonumber(reaction));
+      RS:Update()
+    end)
 
   reactionBox:SetScript("OnKeyUp",
-      function(self)
-        local reaction = self:GetText()
-        local parent = self:GetParent()
-        local text = parent.text:GetText()
+    function(self)
+      local reaction = self:GetText()
+      local parent = self:GetParent()
+      local text = parent.text:GetText()
 
-        if reaction == "" then
-          reaction = 0;
-        end
+      if reaction == "" then
+        reaction = 0;
+      end
 
-        for _, item in ipairs(settings.profiles[settings.currentProfile]) do
-          if item.itemName == text then
-            item.reaction = --[[---@not nil]] tonumber(reaction)
-          end
+      for _, item in ipairs(settings.profiles[settings.currentProfile]) do
+        if item.itemName == text then
+          item.reaction = --[[---@not nil]] tonumber(reaction)
         end
-      end)
+      end
+    end)
 
   -- Tooltip
   rsTooltip(reactionBox,
-      restockerModule:Color("ffffff", "Required vendor reputation (default 0 or empty)") .. "|n"
-          .. "Check player's reputation standing with the vendor before you buy|n"
-          .. "Neutral=4, Friendly=5, Honored=6, Revered=7, Exalted=8|n"
-          .. restockerModule:Color("ffffff", "Press Enter when finished editing"))
+    restockerModule:Color("ffffff", "Required vendor reputation (default 0 or empty)") .. "|n"
+    .. "Check player's reputation standing with the vendor before you buy|n"
+    .. "Neutral=4, Friendly=5, Honored=6, Revered=7, Exalted=8|n"
+    .. restockerModule:Color("ffffff", "Press Enter when finished editing"))
 
   -- Save the value
   frame.reactionBox = reactionBox
@@ -184,7 +183,7 @@ local function rsBuyFromMerchantButton(frame, chainTo, item)
     RS:UpdateRestockListRow(frame, self.item)
   end)
   rsTooltip(btn, restockerModule:Color("ffffff", "Buy from merchant") .. "|n"
-      .. "Buy necessary quantity from merchant, when merchant window is open")
+    .. "Buy necessary quantity from merchant, when merchant window is open")
   return btn
 end
 
@@ -203,7 +202,7 @@ local function rsStashToBankButton(frame, chainTo, item)
     RS:UpdateRestockListRow(frame, self.item)
   end)
   rsTooltip(btn, restockerModule:Color("ffffff", "Stash to bank") .. "|n"
-      .. "Store extra items in bank, when bank is open. Use 0 to store all")
+    .. "Store extra items in bank, when bank is open. Use 0 to store all")
   return btn
 end
 
@@ -222,7 +221,7 @@ local function rsRestockFromBankButton(frame, chainTo, item)
     RS:UpdateRestockListRow(frame, self.item)
   end)
   rsTooltip(btn, restockerModule:Color("ffffff", "Restock from bank") .. "|n"
-      .. "Take necessary items items from bank, when bank is open")
+    .. "Take necessary items items from bank, when bank is open")
   return btn
 end
 
@@ -241,10 +240,10 @@ function RS:CreateFrame()
   return frame
 end
 
----@shape RsItemButton: WowControl
+---@class RsItemButton: WowControl
 ---@field item RsTradeCommand
 
----@shape RsRestockingListRow: RsControl
+---@class RsRestockingListRow: RsControl
 ---@field text WowFontString
 ---@field editBox WowInputBox
 ---@field delBtn RsItemButton

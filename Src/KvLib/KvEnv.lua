@@ -17,7 +17,7 @@ KvModuleManager = {
 }
 
 function envModule:DetectVersions()
-  local _, _, _, tocversion = GetBuildInfo()
+  --local _, _, _, tocversion = GetBuildInfo()
   self.isCata = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
   self.haveCata = self.isCata
 

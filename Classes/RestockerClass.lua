@@ -2,7 +2,7 @@
 --local RS = RS_ADDON ---@type RestockerAddon
 
 ---A row of controls one row per item to restock or stash
----@shape RsReusableFrame: WowControl
+---@class RsReusableFrame: WowControl
 ---@field isInUse boolean
 ---@field index number
 ---@field text WowFontString The item name label
@@ -37,16 +37,16 @@
 ---@field profileSelectedForDeletion string
 ---@field ICON_FORMAT string
 
----@shape RsCommands
+---@class RsCommands
 ---@field show string
 ---@field profile {[string]: string}
 
----@shape RsAddonDefaults
+---@class RsAddonDefaults
 ---@field prefix string
 ---@field color string
 ---@field slash string
 
----@shape RsProfileCollection
+---@class RsProfileCollection
 ---@field [string] RsTradeCommand[]|nil
 ---@field default RsTradeCommand[]|nil
 
