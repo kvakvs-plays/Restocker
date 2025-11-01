@@ -1,3 +1,7 @@
+## Restocker 2025.11.0
+
+- Added `/rs` and `/restocker` option to toggle slash commands when they might conflict.
+
 ## Restocker 2024.5.1
 
 - [Cataclysm] Minor version update. Functionality looks like it is not broken.

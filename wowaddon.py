@@ -10,14 +10,14 @@ import subprocess
 import sys
 import zipfile
 
-VERSION = '2025.5.0'  # year.month.build_num
+VERSION = '2025.11.0'  # year.month.build_num
 
 ADDON_NAME = 'Restocker'  # Directory and zip name
 ADDON_NAME_CLASSIC = ADDON_NAME  # Directory and zip name
 ADDON_TITLE_CLASSIC = ADDON_NAME  # Title field in TOC
 ADDON_TITLE_MAINLINE = ADDON_NAME  # Title field in Retail mainline
 
-UI_VERSION_CLASSIC = '11507'
+UI_VERSION_CLASSIC = '11508'
 UI_VERSION_CLASSIC_TBC = '20504'  # patch 2.5.4 Phase 4 and 5 TBC
 UI_VERSION_CLASSIC_WOTLK = '30402'
 UI_VERSION_CLASSIC_CATA = '40402'
