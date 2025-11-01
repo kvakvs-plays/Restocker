@@ -15,7 +15,7 @@ local addonOptionsModule = RsModule.addonOptionsModule
 local envModule = KvModuleManager.envModule
 
 local RS = --[[---@type RestockerAddon]] LibStub("AceAddon-3.0"):NewAddon(
-    "Restocker", "AceConsole-3.0", "AceEvent-3.0")
+  "Restocker", "AceConsole-3.0", "AceEvent-3.0")
 RS_ADDON = RS ---@type RestockerAddon
 
 RS.defaults = {
@@ -76,7 +76,6 @@ function RS:SlashCommand(args)
 
   if command == "show" then
     RS:Show()
-
   elseif command == "profile" then
     if rest == "" or rest == nil then
       for _, v in pairs(RS.commands.profile) do
@@ -89,25 +88,19 @@ function RS:SlashCommand(args)
 
     if subcommand == "add" then
       RS:AddProfile(name)
-
     elseif subcommand == "delete" then
       RS:DeleteProfile(name)
-
     elseif subcommand == "rename" then
       RS:RenameCurrentProfile(name)
-
     elseif subcommand == "use" then
       RS:ChangeProfile(name)
-
     elseif subcommand == "copy" then
       RS:CopyProfile(name)
     end
-
   elseif command == "help" then
-
     for _, eachCommand in pairs(RS.commands) do
       if type(eachCommand) == "table" then
-        for _, eachSubcommand in pairs(--[[---@type table]] eachCommand) do
+        for _, eachSubcommand in pairs( --[[---@type table]] eachCommand) do
           RS:Print(eachSubcommand)
         end
       else
@@ -115,17 +108,14 @@ function RS:SlashCommand(args)
       end
     end
     return
-
   elseif command == "config" then
     LibStub("AceConfigDialog-3.0"):Open(TOCNAME)
     return
-
   else
     RS:Toggle()
   end
   RS:Update()
 end
-
 
 --[[
   UPDATE
@@ -143,7 +133,6 @@ function RS:Update()
     table.sort(restockItemList, function(a, b)
       return a.itemName < b.itemName
     end)
-
   elseif RS.sortListNumerically then
     table.sort(restockItemList, function(a, b)
       return a.amount > b.amount
@@ -179,7 +168,6 @@ function RS:Update()
   RS.MainFrame.scrollChild:SetHeight(height)
 end
 
-
 --[[
   GET FIRST UNUSED SCROLLCHILD FRAME
 ]]
@@ -193,8 +181,6 @@ function RS:GetFirstEmpty(item)
   end
   return self:CreateRestockListRow(item)
 end
-
-
 
 --[[
   ADD PROFILE
@@ -211,7 +197,6 @@ function RS:AddProfile(newProfile)
 
   UIDropDownMenu_SetText(RS.MainFrame.profileDropDownMenu, settings.currentProfile)
 end
-
 
 --[[
   DELETE PROFILE
@@ -231,7 +216,6 @@ function RS:DeleteProfile(profile)
       settings.currentProfile = "default"
       settings.profiles.default = {}
     end
-
   else
     settings.profiles[profile] = nil
   end
@@ -259,7 +243,6 @@ function RS:RenameCurrentProfile(newName)
   UIDropDownMenu_SetText(RS.MainFrame.profileDropDownMenu, settings.currentProfile)
 end
 
-
 --[[
   CHANGE PROFILE
 ]]
@@ -269,7 +252,7 @@ function RS:ChangeProfile(newProfile)
 
   UIDropDownMenu_SetText(RS.MainFrame.profileDropDownMenu, settings.currentProfile)
   RS:Update()
-  RS:Print("Current profile: ".. newProfile)
+  RS:Print("Current profile: " .. newProfile)
 
   if bankModule.bankIsOpen then
     eventsModule.OnBankOpen(true)
@@ -324,12 +307,12 @@ end
 function RS:RegisterSlashCommands()
   local settings = restockerModule.settings
   local slashCommand = settings.slashCommand or "both"
-  
+
   -- Unregister existing commands first
   SLASH_RESTOCKER1 = nil
   SLASH_RESTOCKER2 = nil
   SlashCmdList.RESTOCKER = nil
-  
+
   -- Register commands based on setting
   if slashCommand == "rs" then
     SLASH_RESTOCKER1 = "/rs"
@@ -342,11 +325,11 @@ function RS:RegisterSlashCommands()
     SLASH_RESTOCKER2 = "/rs"
     RS.defaults.slash = "|cff8d63ff/rs|r " -- Default display for help messages
   end
-  
+
   SlashCmdList.RESTOCKER = function(msg)
     RS:SlashCommand(msg)
   end
-  
+
   -- Update command help text
   RS.commands.show = RS.defaults.slash .. "show - Show the addon"
   RS.commands.profile = {
@@ -404,7 +387,7 @@ function RS:OnEnable()
   for profileKey, _ in pairs(restockerModule.settings.profiles) do
     local profile = restockerModule.settings.profiles[profileKey]
 
-    for _, item in ipairs(--[[---@not nil]] profile) do
+    for _, item in ipairs( --[[---@not nil]] profile) do
       item.itemID = --[[---@not nil]] tonumber(item.itemID)
     end
   end
@@ -447,7 +430,7 @@ function RS:OptionsInit()
   AceConfig:RegisterOptionsTable(TOCNAME, addonOptionsModule:CreateOptionsTable(), {})
   self.optionsFrames = {
     general = LibStub("AceConfigDialog-3.0"):AddToBlizOptions(
-        TOCNAME, TOCNAME, nil)
+      TOCNAME, TOCNAME, nil)
   }
   self.optionsFrames.general.default = function()
     addonOptionsModule:ResetDefaultOptions()

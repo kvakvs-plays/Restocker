@@ -17,7 +17,8 @@ addonOptionsModule.language = --[[---@type {[string]:string} ]] {
   ["options.category.Profiles"] = "Profiles",
 
   ["options.short.loginMessage"] = "Display login message",
-  ["options.long.loginMessage"] = "Print a message in chat when Restocker is loaded and activated. Disable this to reduce chat noise",
+  ["options.long.loginMessage"] =
+  "Print a message in chat when Restocker is loaded and activated. Disable this to reduce chat noise",
 
   ["options.short.debugMessages"] = "Development debug messages (noisy!)",
   ["options.long.debugMessages"] = "Noisy output used for addon development, do not use",
@@ -40,8 +41,10 @@ addonOptionsModule.language = --[[---@type {[string]:string} ]] {
   ["options.sortList.alphabetic"] = "Alphabetically (by name)",
   ["options.sortList.numeric"] = "Numerically (by item id)",
 
-  ["options.short.slashCommand"] = "Slash command",
-  ["options.long.slashCommand"] = "Choose which slash command to use. Use '/restocker' if '/rs' conflicts with another addon.",
+  ["options.short.slashCommand"] = "Slash command. Requires re-logging in.",
+  ["options.long.slashCommand"] =
+      "Choose which slash command to use. Use '/restocker' if '/rs' conflicts with another addon. " ..
+      "Requires re-logging in for changes to take effect.",
   ["options.slashCommand.rs"] = "/rs (conflicts with some addons)",
   ["options.slashCommand.restocker"] = "/restocker only",
   ["options.slashCommand.both"] = "Both /rs and /restocker",
@@ -108,7 +111,8 @@ end
 ---@param key string|nil
 ---@param notify function|nil Call this with (key, value) on option change
 function addonOptionsModule:TemplateRange(name, rangeFrom, rangeTo, step, dict, key, notify)
-  return kvOptionsModule:TemplateRange(name, rangeFrom, rangeTo, step, dict or restockerModule.settings, key or name, notify, _t)
+  return kvOptionsModule:TemplateRange(name, rangeFrom, rangeTo, step, dict or restockerModule.settings, key or name,
+    notify, _t)
 end
 
 function addonOptionsModule:CreateGeneralOptions()
@@ -120,33 +124,35 @@ function addonOptionsModule:CreateGeneralOptions()
       autoOpenMerchant = self:TemplateCheckbox("autoOpenAtMerchant", nil, nil, nil),
       autoOpenBank = self:TemplateCheckbox("autoOpenAtBank", nil, nil, nil),
       sortList = self:TemplateSelect("sortList", {
-        ["alphabetic"] = _t("options.sortList.alphabetic"),
-        ["numeric"] = _t("options.sortList.numeric"),
-      }, "radio", nil, nil,
-          function(info, value)
-            RS.sortListAlphabetically = value == "alphabetic"
-            RS.sortListNumerically = value ~= "alphabetic"
-            RS:Update()
-          end,
-          function(info)
-            if RS.sortListAlphabetically then
-              return "alphabetic"
-            end
-            return "numeric"
-          end),
+          ["alphabetic"] = _t("options.sortList.alphabetic"),
+          ["numeric"] = _t("options.sortList.numeric"),
+        }, "radio", nil, nil,
+        function(info, value)
+          RS.sortListAlphabetically = value == "alphabetic"
+          RS.sortListNumerically = value ~= "alphabetic"
+          RS:Update()
+        end,
+        function(info)
+          if RS.sortListAlphabetically then
+            return "alphabetic"
+          end
+          return "numeric"
+        end),
       slashCommand = self:TemplateSelect("slashCommand", {
-        ["rs"] = _t("options.slashCommand.rs"),
-        ["restocker"] = _t("options.slashCommand.restocker"),
-        ["both"] = _t("options.slashCommand.both"),
-      }, "radio", nil, nil,
-          function(info, value)
-            restockerModule.settings.slashCommand = value
-            RS:RegisterSlashCommands()
-            RS:Print("Slash command changed. Use " .. (value == "both" and "/rs or /restocker" or value == "rs" and "/rs" or "/restocker") .. " to access Restocker.")
-          end,
-          function(info)
-            return restockerModule.settings.slashCommand or "both"
-          end),
+          ["rs"] = _t("options.slashCommand.rs"),
+          ["restocker"] = _t("options.slashCommand.restocker"),
+          ["both"] = _t("options.slashCommand.both"),
+        }, "radio", nil, nil,
+        function(info, value)
+          restockerModule.settings.slashCommand = value
+          RS:RegisterSlashCommands()
+          RS:Print("Slash command changed. Use " ..
+            (value == "both" and "/rs or /restocker" or value == "rs" and "/rs" or "/restocker") ..
+            " to access Restocker. Log out and log back in.")
+        end,
+        function(info)
+          return restockerModule.settings.slashCommand or "both"
+        end),
       debugMessages = self:TemplateCheckbox("debugMessages", nil, nil, nil),
     }
   }
@@ -161,13 +167,13 @@ function addonOptionsModule:CreateProfilesOptions()
     name = _t("options.category.Profiles"),
     args = {
       createProfileName = self:TemplateInput("string", "profileName", addonOptionsModule, "createProfileName",
-          function(_key, value)
-            if settingsModule:AddProfile(value) then
-              --LibStub("AceConfigDialog-3.0"):NotifyChange(TOCNAME)
-            else
-              RS:Print("Did not create profile \"" .. tostring(value) .. "\"")
-            end
-          end),
+        function(_key, value)
+          if settingsModule:AddProfile(value) then
+            --LibStub("AceConfigDialog-3.0"):NotifyChange(TOCNAME)
+          else
+            RS:Print("Did not create profile \"" .. tostring(value) .. "\"")
+          end
+        end),
       --createProfileButton = self:TemplateButton("profileCreate", function(_key, value)
       --  if settingsModule:AddProfile(value) then
       --    LibStub("AceConfigDialog-3.0"):NotifyChange(TOCNAME)
@@ -176,7 +182,7 @@ function addonOptionsModule:CreateProfilesOptions()
       --  end
       --end),
       deleteProfileList = self:TemplateSelect("deleteProfileName", getProfileNames,
-          "dropdown", addonOptionsModule, nil, nil, nil),
+        "dropdown", addonOptionsModule, nil, nil, nil),
       deleteProfileButton = self:TemplateButton("deleteProfileButton", function()
         settingsModule:DeleteProfile(addonOptionsModule.deleteProfileName)
         --LibStub("AceConfigDialog-3.0"):NotifyChange(TOCNAME)
@@ -194,7 +200,7 @@ function addonOptionsModule:CreateOptionsTable()
       generalOptions = self:CreateGeneralOptions(),
       profilesOptions = self:CreateProfilesOptions(),
     } -- end args
-  } -- end
+  }   -- end
 end
 
 ---Called from options' Default button
