@@ -8,6 +8,8 @@
 ## Version: ${VERSION}
 ## DefaultState: enabled
 ## SavedVariablesPerCharacter: RestockerSettings
+## IconTexture: Interface\AddOns\Restocker\Icons\Restocker.png
+## X-Curse-Project-ID: 450627
 
 # --- load first ---
 embeds.xml

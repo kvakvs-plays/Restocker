@@ -31,3 +31,7 @@ potions/elixirs into bank and restock on your PVP profile items.
 **/rs** or **/restocker** to toggle window.
 
 ![Restocker main frame](https://i.ibb.co/xG8zSN1/restocker.png)
+
+# Attribution
+
+The main icon is created by Smashicons - Flaticon, https://www.flaticon.com/free-icons/restock
