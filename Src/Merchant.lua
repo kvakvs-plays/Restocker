@@ -93,17 +93,21 @@ end
 ---@param purchaseOrders RsTradeCommandsByName
 ---@param numPurchases number Counter for purchases done
 function merchantModule:PurchaseMerchantItem(i, purchaseOrders, numPurchases)
-  local itemName, _, _, _, merchantAvailable, _, _ = GetMerchantItemInfo(i)
+  local merchantInfo = restockerModule:GetMerchantItemInfo(i)
+  if not merchantInfo then
+    return 0
+  end
+
   local itemLink = GetMerchantItemLink(i)
 
   -- is item from merchant in our purchase order?
-  local buyItem = purchaseOrders[itemName]
+  local buyItem = purchaseOrders[merchantInfo.name]
 
   if buyItem then
     local itemInfo = RS.GetItemInfo(itemLink)
 
-    if buyItem.amount > merchantAvailable and merchantAvailable > 0 then
-      BuyMerchantItem(i, merchantAvailable)
+    if buyItem.amount > merchantInfo.numAvailable and merchantInfo.numAvailable > 0 then
+      BuyMerchantItem(i, merchantInfo.numAvailable)
       numPurchases = numPurchases + 1
     else
       for n = buyItem.amount, 1, -(--[[---@not nil]] itemInfo).itemStackCount do
@@ -158,7 +162,7 @@ function merchantModule:Restock()
   end
 
   -- Loop through vendor items
-  for i = 0, GetMerchantNumItems() do
+  for i = 1, GetMerchantNumItems() do
     if not RS.buying then
       return
     end

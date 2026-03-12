@@ -444,3 +444,81 @@ end
 function restockerModule:Color(hex, text)
   return "|cff" .. hex .. text .. "|r"
 end
+
+--- Compatibility layer for function deprecated in 10.0
+function restockerModule:GetContainerNumSlots(containerId)
+  RS:Debug("GetContainerNumSlots containerId=" .. containerId)
+  if C_Container then
+    return C_Container.GetContainerNumSlots(containerId)
+  else
+    return GetContainerNumSlots(containerId)
+  end
+end
+
+---@class RsMerchantItemInfoResult
+---@field name string? 	
+---@field texture number|string	
+---@field price number 	
+---@field stackCount number 	
+---@field numAvailable number 	
+---@field isPurchasable boolean 	
+---@field isUsable boolean 	
+---@field hasExtendedCost? boolean 	
+---@field currencyID number? 	
+---@field spellID number? 	
+---@field isQuestStartItem boolean 	
+
+--- Compatibility layer for function deprecated in 11.0
+function restockerModule:GetMerchantItemInfo(index)
+  if C_MerchantFrame then
+    return C_MerchantFrame.GetItemInfo(index)
+  else
+    local name, texture, price, quantity, numAvailable, isPurchasable, isUsable, extendedCost, currencyID, spellID =
+        GetMerchantItemInfo(index)
+    return { --- @type RsMerchantItemInfoResult
+      name = name,
+      texture = texture,
+      price = price,
+      stackCount = quantity,
+      numAvailable = numAvailable,
+      isPurchasable = isPurchasable,
+      isUsable = isUsable,
+      hasExtendedCost = extendedCost,
+      currencyID = currencyID,
+      spellID = spellID,
+      isQuestStartItem = isQuestStartItem,
+    }
+  end
+end
+
+---@class RsGetContainerItemInfoResult
+---@field iconFileID 	number 	
+---@field stackCount 	number 	
+---@field isLocked 	boolean 	
+---@field quality 	Enum.ItemQuality? 	
+---@field isReadable 	boolean 	
+---@field hasLoot 	boolean 	
+---@field hyperlink 	string 	Hyperlink
+---@field isFiltered 	boolean 	
+---@field hasNoValue 	boolean 	
+---@field itemID 	number 	
+---@field isBound 	boolean 	
+
+function restockerModule:GetContainerItemInfo(bagId, slot)
+  if C_Container then
+    return C_Container.GetContainerItemInfo(bagId, slot)
+  else
+    -- icon, itemCount, locked, quality, readable, lootable, itemLink, isFiltered, noValue, itemID, isBound = GetContainerItemInfo(bagID, slot)
+    local icon, itemCount, locked, quality, readable, lootable, itemLink, isFiltered,
+    noValue, itemID, isBound = GetContainerItemInfo(bagId, slot)
+    return { --- @type RsGetContainerItemInfoResult
+      iconFileID = icon,
+      stackCount = itemCount,
+      isLocked = locked,
+      quality = quality,
+      isReadable = readable,
+      hasLoot = lootable,
+      hyperlink = itemLink,
+    }
+  end
+end
