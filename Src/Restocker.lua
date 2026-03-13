@@ -447,11 +447,19 @@ end
 
 --- Compatibility layer for function deprecated in 10.0
 function restockerModule:GetContainerNumSlots(containerId)
-  RS:Debug("GetContainerNumSlots containerId=" .. containerId)
   if C_Container then
     return C_Container.GetContainerNumSlots(containerId)
   else
     return GetContainerNumSlots(containerId)
+  end
+end
+
+--- @return number, number "freeSlots, bagFamily"
+function restockerModule:GetContainerNumFreeSlots(containerId)
+  if C_Container then
+    return C_Container.GetContainerNumFreeSlots(containerId)
+  else
+    return GetContainerNumFreeSlots(containerId)
   end
 end
 
@@ -521,4 +529,30 @@ function restockerModule:GetContainerItemInfo(bagId, slot)
       hyperlink = itemLink,
     }
   end
+end
+
+--- Need this function early for SafeCall logging to work
+--- @param value table|integer|number|string|boolean|nil
+--- @return string
+function restockerModule:Dump(value, ...)
+  local extras = { ... }
+  if #extras > 0 then
+      local result = "("
+      for _, tabValue in pairs({ value, ... }) do
+          result = result .. Dump(tabValue) .. ", "
+      end
+      return result .. ")"
+  end
+  if type(value) == "table"
+      or type(value) == "userdata" and type(value["insert"]) == "function" -- try to dump C++ containers too
+  then
+      local result = "{"
+      for tabKey, tabValue in pairs(value --[[@as table]]) do
+          result = result .. Dump(tabKey) .. "=" .. Dump(tabValue) .. ", "
+      end
+      return result .. "}"
+  elseif type(value) == "string" then
+      return '"' .. value .. '"'
+  end
+  return tostring(value)
 end

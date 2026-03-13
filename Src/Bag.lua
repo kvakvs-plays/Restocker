@@ -9,7 +9,7 @@ local RS = RS_ADDON ---@type RestockerAddon
 
 local bagModule = RsModule.bagModule ---@type RsBagModule
 local itemModule = RsModule.itemModule ---@type RsItemModule
-local kvEnvModule = KvModuleManager.envModule
+local envModule = KvModuleManager.envModule
 local inventoryModule = RsModule.inventoryModule ---@type RsInventoryModule
 local restockerModule = RsModule.restockerModule ---@type RsRestockerModule
 
@@ -33,7 +33,7 @@ bagModule.BANK_BAGS_REVERSED = --[[---@type RsBagDef[] ]] {} -- set up in RS.Set
 ---Converts bag indexes 1..4 (bags after the backpack) to inventory slot indexes
 ---(example retail Dragonflight 31..34)
 local function bagSlotFromBag(bag)
-  -- RS:Debug("bagSlotFromBag bag=" .. bag)
+  RS:Debug("bagSlotFromBag bag=BAG" .. (bag - 1) .. "SLOT")
   local bagSlot, _icon, _ = GetInventorySlotInfo("BAG" .. (bag - 1) .. "SLOT")
   return bagSlot
 end
@@ -67,17 +67,50 @@ local function createBankBag(bag)
   return bagModule:NewBagDef("bag", bagId, C_Container.ContainerIDToInventoryID(bagId))
 end
 
-function bagModule.OnModuleInit()
-  bagModule.BANK_BAGS = { createBankMainBag(), createBankBag(1), createBankBag(2), createBankBag(3),
-    createBankBag(4), createBankBag(5), createBankBag(6), createBankBag(7) }
+local function onInit_playerBankBags()
+  -- In Midnight the bank bags are 6-11 for character bank and 12-16 for account bank (offset by NUM_BAG_SLOTS=4)
+  if envModule.isMidnight then
+    bagModule.BANK_BAGS = { createBankMainBag(), createBankBag(2), createBankBag(3), createBankBag(4),
+      createBankBag(5), createBankBag(6), createBankBag(7), createBankBag(8), createBankBag(9), createBankBag(10),
+      createBankBag(11), createBankBag(12) }
+  else
+    bagModule.BANK_BAGS = { createBankMainBag(), createBankBag(1), createBankBag(2), createBankBag(3),
+      createBankBag(4), createBankBag(5), createBankBag(6), createBankBag(7) }
+  end
+end
+
+local function onInit_playerBankBagsReversed()
   bagModule.BANK_BAGS_REVERSED = { createBankBag(7), createBankBag(6), createBankBag(5),
     createBankBag(4), createBankBag(3), createBankBag(2), createBankBag(1),
     createBankMainBag() }
+end
 
-  bagModule.PLAYER_BAGS = { createBackpack(),
-    createBag(1), createBag(2), createBag(3), createBag(4) }
-  bagModule.PLAYER_BAGS_REVERSED = { createBag(4), createBag(3), createBag(2), createBag(1),
-    createBackpack() }
+local function onInit_playerBags()
+  if envModule.isMidnight then
+    -- Bags are numbered 0 to 3
+    bagModule.PLAYER_BAGS = { createBackpack(), createBag(0), createBag(1), createBag(2), createBag(3) }
+  else
+    bagModule.PLAYER_BAGS = { createBackpack(), createBag(1), createBag(2), createBag(3), createBag(4) }
+  end
+end
+
+local function onInit_playerBagsReversed()
+  bagModule.PLAYER_BAGS_REVERSED = {}
+  if envModule.isMidnight then
+    table.insert(bagModule.PLAYER_BAGS_REVERSED, createBag(5)) -- Reagent Bag in Wow Midnight is 5
+  end
+  table.insert(bagModule.PLAYER_BAGS_REVERSED, createBag(4))
+  table.insert(bagModule.PLAYER_BAGS_REVERSED, createBag(3))
+  table.insert(bagModule.PLAYER_BAGS_REVERSED, createBag(2))
+  table.insert(bagModule.PLAYER_BAGS_REVERSED, createBag(1))
+  table.insert(bagModule.PLAYER_BAGS_REVERSED, createBackpack())
+end
+
+function bagModule.OnModuleInit()
+  onInit_playerBankBags()
+  onInit_playerBankBagsReversed()
+  onInit_playerBags()
+  onInit_playerBagsReversed()
 end
 
 function bagDefClass:NumSlots()
@@ -86,7 +119,7 @@ end
 
 ---@return boolean
 function bagDefClass:HasSpace()
-  local numberOfFreeSlots, _bagType = C_Container.GetContainerNumFreeSlots(self.bagId)
+  local numberOfFreeSlots, _bagType = restockerModule:GetContainerNumFreeSlots(self.bagId)
   return numberOfFreeSlots > 0
 end
 
@@ -223,9 +256,9 @@ function bagModule:GetItemsInBank(predicate)
             local newSlot = inventoryModule:NewSlot(bag.bagId, slot, itemInfo.stackCount)
             table.insert(result.slots[itemName], newSlot)
           end
-        end -- end if itemInfo and itemInfo.itemID 
-      end -- end for every slot
-    end -- if bag.bagId
+        end -- end if itemInfo and itemInfo.itemID
+      end   -- end for every slot
+    end     -- if bag.bagId
   end
 
   result:SortSlots()
@@ -297,7 +330,7 @@ end
 ---@param bags RsBagDef[]
 function bagModule:CheckSpace(bags)
   for _, bag in ipairs(bags) do
-    local numberOfFreeSlots, _bagType = C_Container.GetContainerNumFreeSlots(bag.bagId)
+    local numberOfFreeSlots, _bagType = restockerModule:GetContainerNumFreeSlots(bag.bagId)
     if numberOfFreeSlots > 0 then
       return true
     end
@@ -364,7 +397,7 @@ function bagModule:MoveFromBankToPlayer_1(playerInventory, task, candidates, mov
     -- Move if entire stack found which fits
     if moveCandidate.count <= moveAmount then
       RS:Debug("Use " .. moveCandidate.name .. " from bank, bag=" .. moveCandidate.bag .. ", slot=" .. moveCandidate
-      .slot)
+        .slot)
       C_Container.UseContainerItem(moveCandidate.bag, moveCandidate.slot, nil, nil)
       task[moveCandidate.name] = task[moveCandidate.name] - moveCandidate.count -- deduct
       return true                                                               -- DONE one step
@@ -374,7 +407,7 @@ function bagModule:MoveFromBankToPlayer_1(playerInventory, task, candidates, mov
       -- Can't be nil we know item exists
       local itemInfo = --[[---@not nil]] RS.GetItemInfo(moveCandidate.itemId)
       RS:Debug("Split " ..
-      moveCandidate.name .. " from bank, bag=" .. moveCandidate.bag .. ", slot=" .. moveCandidate.slot)
+        moveCandidate.name .. " from bank, bag=" .. moveCandidate.bag .. ", slot=" .. moveCandidate.slot)
 
       -- Split and take
       C_Container.SplitContainerItem(moveCandidate.bag, moveCandidate.slot, moveAmount)

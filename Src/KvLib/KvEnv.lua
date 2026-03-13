@@ -17,6 +17,8 @@ KvModuleManager = {
 }
 
 function envModule:DetectVersions()
+  self.isMidnight = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE and LE_EXPANSION_LEVEL_CURRENT == LE_EXPANSION_MIDNIGHT
+
   --local _, _, _, tocversion = GetBuildInfo()
   self.isCata = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
   self.haveCata = self.isCata

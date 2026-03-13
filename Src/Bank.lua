@@ -178,7 +178,13 @@ end
 
 local function restockCoro()
   --bankModule.state = bankModule:NewState()
-  while bankModule:RunRestockLogic() == false and bankModule.bankIsOpen do
+  while bankModule.bankIsOpen do
+    local success, result = pcall(bankModule.RunRestockLogic)
+    if not success then
+      RS:Debug("Restock failed with: " .. restockerModule:Dump(result))
+      theCoroutineObject = nil
+      return
+    end
     coroutine.yield()
   end
 end
