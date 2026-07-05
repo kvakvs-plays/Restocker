@@ -35,7 +35,7 @@ function eventsModule.OnMerchantClose()
   RS:Hide()
 end
 
-function eventsModule.OnBankOpen(isMinor)
+function eventsModule.OnBankOpen()
   local settings = restockerModule.settings
 
   if IsShiftKeyDown()
@@ -47,13 +47,6 @@ function eventsModule.OnBankOpen(isMinor)
     RS:Show()
   end
 
-  if isMinor then
-    RS.minorChange = true
-  else
-    RS.minorChange = false
-  end
-
-  bankModule.didBankStuff = false
   bankModule.bankIsOpen = true
   bankModule:RestartRestocking()
 end
@@ -99,12 +92,19 @@ function eventsModule.OnLogout()
   settings.framePos.relativePoint = relativePoint
   settings.framePos.xOfs = xOfs
   settings.framePos.yOfs = yOfs
+
+  -- Pack items into the compact one-line-per-item form for the SavedVariables file.
+  -- Must be last here, since RS:Show()/Update() above iterate items as tables.
+  RS:DeflateForSave()
 end
 
 function eventsModule.OnUiErrorMessage(id, message)
   if id == 2 or id == 3 then
-    -- catch inventory / bank full error messages
-    bankModule.currentlyRestocking = false
+    -- "Inventory is full" / "Bank is full". Do NOT hard-stop restocking here: this error
+    -- can fire on a transient race, and silently killing the whole run is what left later
+    -- items untouched. The restock loop re-scans every step and stops itself with a clear
+    -- message when it's genuinely out of room (see RunRestockLogic / StuckMessage). Buying,
+    -- which has no such self-check, still stops.
     RS.buying = false
   end
 end

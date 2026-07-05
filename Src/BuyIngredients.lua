@@ -235,7 +235,7 @@ function buyIngredientsModule:CraftingPurchaseOrder()
   -- Check auto-buy reagents table
   local profile = settings.profiles[settings.currentProfile]
 
-  for _, item in ipairs(--[[---@not nil]] profile) do
+  for _, item in pairs(--[[---@not nil]] profile) do
     if buyIngredientsModule.buyIngredients[item.itemName] ~= nil then
       local craftedName = item.itemName
       local craftedRestockAmount = item.amount

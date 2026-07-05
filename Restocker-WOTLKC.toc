@@ -1,0 +1,47 @@
+#
+# Do not edit - this file is generated from TOC_TEMPLATE.TOC
+#
+## Interface: 30402
+## Title: Restocker
+## Author: kvakvs; original author RainForDays
+## Notes: Restock items automatically from vendors and manage bag/bank balance
+## Version: 2025.11.0-4b856f67
+## DefaultState: enabled
+## SavedVariables: RestockerDB
+## SavedVariablesPerCharacter: RestockerSettings
+
+# --- load first ---
+embeds.xml
+Src\Module.lua
+Src\KvLib\KvEnv.lua
+# --- end load first ---
+
+Src\Restocker.lua
+Src\KvLib\KvOptions.lua
+
+Classes\RestockerClass.lua
+Classes\BuyCommand.lua
+Classes\RestockerConf.lua
+Classes\Recipe.lua
+
+Src\BuyIngredients.lua
+Src\Events.lua
+Src\AddonOptions.lua
+Src\Settings.lua
+
+Frames\MainFrame.lua
+Frames\ListFrame.lua
+Frames\LegacyOptionsPanel.lua
+
+Src\Bank.lua
+Src\Merchant.lua
+Src\Item.lua
+Src\Cache.lua
+Src\Inspect.lua
+Src\Bag.lua
+Src\Inventory.lua
+
+
+#
+# Do not edit - this file is generated from TOC_TEMPLATE.TOC
+#

@@ -17,14 +17,14 @@ slotNumberClass.__index = slotNumberClass
 local slotClass = {}
 slotClass.__index = slotClass
 
----@alias RsInventoryCountByItemName {[string]: number} Items in the bag by name
----@alias RsInventorySlotByItemName {[string]: RsSlot[]} Items in the bag by name
----@alias RsMoveItemTask table<string, number> Item name is key, amount to buy is value
+---@alias RsInventoryCountByItemId {[number]: number} Stack totals keyed by itemID
+---@alias RsInventorySlotByItemId {[number]: RsSlot[]} Bag slots keyed by itemID
+---@alias RsMoveItemTask table<number, number> itemID is key, amount to move is value
 
 ---Collection of items in the inventory or bank with their precise slot locations and counts, and summaries
 ---@class RsInventory
----@field summary RsInventoryCountByItemName
----@field slots RsInventorySlotByItemName
+---@field summary RsInventoryCountByItemId
+---@field slots RsInventorySlotByItemId
 local inventoryClass = {} ---@type RsInventory
 inventoryClass.__index = inventoryClass
 
@@ -79,9 +79,9 @@ end
 ---@param bags RsBagDef[]
 ---@return RsInventorySlotNumber|nil
 function inventoryClass:FindBestFit(cachedItem, amount, bags)
-  local containingSlots = self.slots[cachedItem.itemName]
+  local containingSlots = self.slots[cachedItem.itemId]
   if not containingSlots then
-    RS:Debug("BestFit: No existing stacks for merging " .. cachedItem.itemName.. " x" .. amount)
+    RS:Debug("BestFit: no existing stacks for merging %s x%s", cachedItem.itemName, amount)
     return nil
   end
 
@@ -98,7 +98,7 @@ function inventoryClass:FindBestFit(cachedItem, amount, bags)
   end
 
   if #mergeDestinations == 0 then
-    RS:Debug("BestFit: Found stacks but no candidates for merging " .. cachedItem.itemName.. " x" .. amount)
+    RS:Debug("BestFit: found stacks but no candidates for merging %s x%s", cachedItem.itemName, amount)
     return nil
   end
 
@@ -112,8 +112,7 @@ function inventoryClass:FindBestFit(cachedItem, amount, bags)
 
   -- First element should be lowest, i.e. closest to the perfection of a full stack
   local bestDestination = mergeDestinations[1]
-  RS:Debug("BestFit: Candidate for merging "
-      .. cachedItem.itemName .. " x" .. amount
-      .. " is " .. bestDestination.bag .. ":" .. bestDestination.slot)
+  RS:Debug("BestFit: candidate for merging %s x%s is %s:%s",
+      cachedItem.itemName, amount, bestDestination.bag, bestDestination.slot)
   return inventoryModule:NewSlotNumber(bestDestination.bag, bestDestination.slot)
 end

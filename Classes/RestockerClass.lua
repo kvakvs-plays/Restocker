@@ -6,13 +6,14 @@
 ---@field isInUse boolean
 ---@field index number
 ---@field text WowFontString The item name label
+---@field icon WowTexture The item icon
+---@field iconBtn WowControl Invisible button over the icon, shows the item tooltip
 ---@field editBox WowControl The item count editbox
----@field reactionBox WowControl The required vendor reputation standing
+---@field repBtn WowControl The required vendor reputation dropdown button
 
 ---@class RestockerAddon
 ---@field RegisterEvent function
 ---@field buying boolean Currently buying is in progress
----@field minorChange boolean Bank open event sets this; Unused
 ---@field addItemWait {[number|string]: boolean|nil} Item ids waiting for resolution to be added to the buy list
 ---@field addonName string
 ---@field BAG_ICON string
@@ -46,9 +47,12 @@
 ---@field color string
 ---@field slash string
 
+---A single restock profile: items keyed by their itemID (no array, no duplicates)
+---@alias RsProfile {[number]: RsTradeCommand}
+
 ---@class RsProfileCollection
----@field [string] RsTradeCommand[]|nil
----@field default RsTradeCommand[]|nil
+---@field [string] RsProfile|nil
+---@field default RsProfile|nil
 
 ---@class RsSettings
 ---@field autoOpenAtBank boolean
@@ -57,4 +61,7 @@
 ---@field framePos table
 ---@field loginMessage boolean Show restocker hello message
 ---@field profiles RsProfileCollection
+---@field profileKeys {[string]: string}|nil Maps a character "Name-Realm" to its active profile name
 ---@field debugMessages boolean
+---@field dataVersion number Saved-data layout version (see RS_DATA_VERSION)
+---@field migratedToAccount boolean|nil Set on the old per-character table once imported

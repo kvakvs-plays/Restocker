@@ -21,13 +21,12 @@ RS.hiddenFrame:Hide()
 ---@field scrollFrame RsControl
 ---@field scrollChild RsControl
 ---@field title RsControl
----@field reactionBox RsControl
 
 function mainFrameModule:CreateAddonFrame()
   local settings = restockerModule.settings
   local addonFrame = --[[---@type RsRestockerFrame]] CreateFrame("Frame", "RestockerMainFrame", UIParent,
     "BasicFrameTemplate");
-  addonFrame.width = 350
+  addonFrame.width = 580
   addonFrame.height = 400
   addonFrame:SetSize(addonFrame.width, addonFrame.height);
   addonFrame:SetPoint(settings.framePos.point or "RIGHT",
@@ -56,11 +55,42 @@ end
 function mainFrameModule:CreateScrollFrame(addonFrame, listInset)
   local scrollFrame = --[[---@type RsControl]] CreateFrame("ScrollFrame", nil, addonFrame, "UIPanelScrollFrameTemplate")
   scrollFrame.width = addonFrame.listInset.width - 4
-  scrollFrame.height = addonFrame.listInset.height - 32
+  -- Leave 22px at the top for the sortable column-header bar
+  scrollFrame.height = addonFrame.listInset.height - 32 - 22
   scrollFrame:SetSize(scrollFrame.width - 30, scrollFrame.height);
-  scrollFrame:SetPoint("TOPLEFT", listInset, "TOPLEFT", 8, -6);
+  scrollFrame:SetPoint("TOPLEFT", listInset, "TOPLEFT", 8, -28);
   addonFrame.scrollFrame = scrollFrame
   return scrollFrame
+end
+
+---A text filter at the top of the list. Once 2+ characters are typed, the list shows
+---only items whose name or type contains the text; clearing it shows everything.
+function mainFrameModule:CreateFilterBox(addonFrame, listInset)
+  local box = --[[---@type WowInputBox]] CreateFrame("EditBox", nil, addonFrame, "InputBoxTemplate")
+  box:SetPoint("TOPLEFT", listInset, "TOPLEFT", 16, -6)
+  box:SetPoint("TOPRIGHT", listInset, "TOPRIGHT", -12, -6)
+  box:SetHeight(18)
+  box:SetAutoFocus(false)
+
+  -- Greyed-out placeholder, shown only while the box is empty
+  local placeholder = box:CreateFontString(nil, "OVERLAY")
+  placeholder:SetFontObject("GameFontDisableSmall")
+  placeholder:SetPoint("LEFT", box, "LEFT", 4, 0)
+  placeholder:SetText("Filter items...")
+
+  box:SetScript("OnTextChanged", function(self)
+    local text = self:GetText() or ""
+    placeholder:SetShown(text == "")
+    RS.listFilter = text
+    RS:Update()
+  end)
+  box:SetScript("OnEscapePressed", function(self)
+    self:SetText("")
+    self:ClearFocus()
+  end)
+
+  addonFrame.filterBox = box
+  return box
 end
 
 function mainFrameModule:CreateScrollChild(scrollFrame, addonFrame)
@@ -212,6 +242,7 @@ function mainFrameModule:CreateMenu()
   local addBtn = self:CreateAddButton(addGrp)
   local _ = self:CreateEditbox(addonFrame, addBtn)
 
+  self:CreateFilterBox(addonFrame, listInset)
   self:CreateProfilesDropdown(addonFrame)
   local _ = self:CreateSettingsButton(addonFrame)
 
@@ -249,22 +280,27 @@ function RS:addItem(text)
   if itemInfo == nil then
     RS.addItemWait[text] = true
     return
-  else
-    for _, item in ipairs(currentProfile) do
-      if item.itemName:lower() == ( --[[---@not nil]] itemInfo).itemName:lower() then
-        return
-      end
-    end
+  end
+
+  local itemID = ( --[[---@not nil]] itemInfo).itemId
+
+  -- Profiles are keyed by itemID, so a duplicate is a simple lookup
+  if currentProfile[itemID] ~= nil then
+    return
   end
 
   local buyItem = --[[---@type RsTradeCommand]] {}
 
   buyItem.itemName = ( --[[---@not nil]] itemInfo).itemName
-  buyItem.itemLink = ( --[[---@not nil]] itemInfo).itemLink
-  buyItem.itemID = ( --[[---@not nil]] itemInfo).itemId
+  buyItem.itemType = ( --[[---@not nil]] itemInfo).itemType
+  buyItem.itemID = itemID
   buyItem.amount = 1
+  -- New items default to everything ON: buy from merchant, stash to bank, restock from bank
+  buyItem.buyFromMerchant = true
+  buyItem.stashTobank = true
+  buyItem.restockFromBank = true
 
-  table.insert(settings.profiles[settings.currentProfile], buyItem)
+  currentProfile[itemID] = buyItem
 
   RS:Update()
 end

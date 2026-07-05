@@ -28,27 +28,9 @@ function merchantModule:CountTableItems(theTable)
   return count
 end
 
----@param sellOrders RsTradeCommandsByName
----@param eachRestockRecord RsTradeCommand
-function merchantModule:BuildSellOrder(sellOrders, eachRestockRecord)
-  local haveInBag = GetItemCount(eachRestockRecord.itemName, false, false)
-  local amount = eachRestockRecord.amount or 0
-
-  if amount > 0 then
-    local toSell = haveInBag - amount
-
-    if toSell > 0 then
-      local sellOrder = sellOrders[eachRestockRecord.itemName]
-      if not sellOrder then
-        -- add new
-        sellOrders[eachRestockRecord.itemName] = buyItemModule:Create(
-            toSell, eachRestockRecord.itemName, eachRestockRecord.itemID, eachRestockRecord.itemLink)
-      else
-        sellOrder.amount = sellOrder.amount + toSell -- update amount, add more
-      end
-    end -- if tobuy > 0
-  end -- if amount
-end
+-- NOTE: this addon must NEVER sell at a merchant. Having too many of an item is fine and is
+-- left untouched. The old merchantModule:BuildSellOrder (which vendored the excess) has been
+-- removed for that reason; only BuildPurchaseOrder (buy when too few) remains.
 
 ---@param purchaseOrders RsTradeCommandsByName
 ---@param eachRestockRecord RsTradeCommand
@@ -93,21 +75,17 @@ end
 ---@param purchaseOrders RsTradeCommandsByName
 ---@param numPurchases number Counter for purchases done
 function merchantModule:PurchaseMerchantItem(i, purchaseOrders, numPurchases)
-  local merchantInfo = restockerModule:GetMerchantItemInfo(i)
-  if not merchantInfo then
-    return 0
-  end
-
+  local itemName, _, _, _, merchantAvailable, _, _ = GetMerchantItemInfo(i)
   local itemLink = GetMerchantItemLink(i)
 
   -- is item from merchant in our purchase order?
-  local buyItem = purchaseOrders[merchantInfo.name]
+  local buyItem = purchaseOrders[itemName]
 
   if buyItem then
     local itemInfo = RS.GetItemInfo(itemLink)
 
-    if buyItem.amount > merchantInfo.numAvailable and merchantInfo.numAvailable > 0 then
-      BuyMerchantItem(i, merchantInfo.numAvailable)
+    if buyItem.amount > merchantAvailable and merchantAvailable > 0 then
+      BuyMerchantItem(i, merchantAvailable)
       numPurchases = numPurchases + 1
     else
       for n = buyItem.amount, 1, -(--[[---@not nil]] itemInfo).itemStackCount do
@@ -140,6 +118,14 @@ function merchantModule:Restock()
   self.lastTimeRestocked = GetTime()
   local numPurchases = 0
 
+  -- Don't try to buy anything when the bags have no free slot -- the purchase would just
+  -- fail with "Inventory is full". (The bank restock already bails on full bags via
+  -- CheckBankBagSpace.)
+  if not bagModule:CheckSpace(bagModule.PLAYER_BAGS) then
+    RS:Print("Bags are full -- skipping merchant restock")
+    return
+  end
+
   if settings.autoOpenAtMerchant then
     RS:Show()
   end
@@ -150,7 +136,7 @@ function merchantModule:Restock()
   local vendorReaction = UnitReaction("target", "player") or 0
 
   -- Build the Purchase Orders table used for buying items
-  for _, eachRestockRecord in ipairs(--[[---@not nil]] restockList) do
+  for _, eachRestockRecord in pairs(--[[---@not nil]] restockList) do
     if eachRestockRecord.buyFromMerchant or eachRestockRecord.buyFromMerchant == nil then -- nil defaults to true
       self:BuildPurchaseOrder(purchaseOrders, eachRestockRecord, vendorReaction)
     end
@@ -162,7 +148,7 @@ function merchantModule:Restock()
   end
 
   -- Loop through vendor items
-  for i = 1, GetMerchantNumItems() do
+  for i = 0, GetMerchantNumItems() do
     if not RS.buying then
       return
     end

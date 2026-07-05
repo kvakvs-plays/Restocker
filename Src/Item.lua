@@ -37,36 +37,38 @@ function itemModule:FromCachedItem(gii)
   return fields
 end
 
--- ---@class RsContainerItemInfo
--- ---@field bag number Bag number where the item is found
--- ---@field slot number Slot number in the bag
--- ---@field icon WowIconId
--- ---@field count number
--- ---@field itemId number
--- ---@field locked boolean
--- ---@field link string
--- ---@field name string Extracted from item link, localized name
+---@class RsContainerItemInfo
+---@field bag number Bag number where the item is found
+---@field slot number Slot number in the bag
+---@field icon WowIconId
+---@field count number
+---@field itemId number
+---@field locked boolean
+---@field link string
+---@field name string Extracted from item link, localized name
 
--- ---@return RsContainerItemInfo|nil
--- function itemModule:GetContainerItemInfo(bagId, slot)
---   --local icon, slotCount, slotLocked, _, _, _, slotItemLink, _, _, slotItemId =
---   local itemInfo = C_Container.GetContainerItemInfo(bagId, slot)
---   if not itemInfo then
---     return nil
---   end
---   local itemName = string.match(itemInfo.hyperlink, "%[(.*)%]")
+---@return RsContainerItemInfo|nil
+function itemModule:GetContainerItemInfo(bagId, slot)
+  --local icon, slotCount, slotLocked, _, _, _, slotItemLink, _, _, slotItemId =
+  local itemInfo = C_Container.GetContainerItemInfo(bagId, slot)
+  -- hyperlink can be nil for a not-yet-cached item; skip the slot rather than erroring
+  -- on string.match(nil, ...). Matching is done by itemId, so a skipped slot is harmless.
+  if not itemInfo or not itemInfo.hyperlink then
+    return nil
+  end
+  local itemName = string.match(itemInfo.hyperlink, "%[(.*)%]")
 
---   local i = --[[---@type RsContainerItemInfo]] {}
---   i.bag = bagId
---   i.slot = slot
---   i.icon = itemInfo.iconFileID
---   i.count = itemInfo.stackCount
---   i.locked = itemInfo.isLocked
---   i.link = itemInfo.hyperlink
---   i.itemId = itemInfo.itemID
---   i.name = --[[---@type string]] itemName
---   return i
--- end
+  local i = --[[---@type RsContainerItemInfo]] {}
+  i.bag = bagId
+  i.slot = slot
+  i.icon = itemInfo.iconFileID
+  i.count = itemInfo.stackCount
+  i.locked = itemInfo.isLocked
+  i.link = itemInfo.hyperlink
+  i.itemId = itemInfo.itemID
+  i.name = --[[---@type string]] itemName
+  return i
+end
 
 ---Compare whether a is less than b
 ---For use in table.sort(table, itemModule.CompareByStacksizeAscending) to sort by stack size
