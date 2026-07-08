@@ -1,5 +1,6 @@
 ---@class RsModuleModule
 ---@field addonOptionsModule RsAddonOptionsModule
+---@field aceMainFrameModule RsAceMainFrameModule
 ---@field bagModule RsBagModule
 ---@field bankModule RsBankModule
 ---@field buyCommandModule RsBuyCommandModule
@@ -13,6 +14,7 @@
 ---@field restockerModule RsRestockerModule
 ---@field settingsModule RsSettingsModule
 local rsModule = {
+  aceMainFrameModule = {},
   addonOptionsModule = {},
   bagModule = {},
   bankModule = {},

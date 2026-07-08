@@ -1,53 +1,51 @@
 ------------------------------------------------------------------------
-r1348 | nevcairiel | 2024-07-23 11:23:40 +0000 (Tue, 23 Jul 2024) | 1 line
-Changed paths:
-   M /trunk/changelog.txt
-
-Update changelog
-------------------------------------------------------------------------
-r1347 | nevcairiel | 2024-07-23 11:23:22 +0000 (Tue, 23 Jul 2024) | 1 line
+r1398 | funkehdude | 2026-06-26 15:09:40 +0000 (Fri, 26 Jun 2026) | 1 line
 Changed paths:
    M /trunk/Ace3.toc
 
-Remove outdated TOC versions that are no longer maintained/tested
+Bump toc
 ------------------------------------------------------------------------
-r1346 | nevcairiel | 2024-07-20 07:10:33 +0000 (Sat, 20 Jul 2024) | 1 line
+r1397 | funkehdude | 2026-06-20 00:35:53 +0000 (Sat, 20 Jun 2026) | 1 line
 Changed paths:
-   M /trunk
+   M /trunk/Ace3.toc
+
+Bump toc
+------------------------------------------------------------------------
+r1396 | funkehdude | 2026-06-20 00:33:25 +0000 (Sat, 20 Jun 2026) | 1 line
+Changed paths:
    M /trunk/.luacheckrc
-   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-EditBox.lua
-   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-MultiLineEditBox.lua
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-CheckBox.lua
 
-AceGUI-3.0: Editboxes: Update spell drag-and-drop for WoW 11.0
+AceGUI-3.0/widgets/AceGUIWidget-CheckBox: Fix setting desaturation on WoW 12.1
 ------------------------------------------------------------------------
-r1345 | funkehdude | 2024-07-09 19:31:35 +0000 (Tue, 09 Jul 2024) | 1 line
+r1395 | funkehdude | 2026-05-17 23:36:19 +0000 (Sun, 17 May 2026) | 1 line
 Changed paths:
    M /trunk/Ace3.toc
 
-bump toc
+Bump toc
 ------------------------------------------------------------------------
-r1344 | nevcairiel | 2024-07-03 10:50:13 +0000 (Wed, 03 Jul 2024) | 1 line
-Changed paths:
-   M /trunk
-   M /trunk/Ace3.toc
-
-Add 11.0.2 TOC
-------------------------------------------------------------------------
-r1343 | funkehdude | 2024-06-06 06:04:02 +0000 (Thu, 06 Jun 2024) | 1 line
+r1394 | funkehdude | 2026-04-22 07:51:15 +0000 (Wed, 22 Apr 2026) | 1 line
 Changed paths:
    M /trunk/Ace3.toc
-   D /trunk/Ace3_Cata.toc
-   D /trunk/Ace3_TBC.toc
-   D /trunk/Ace3_Vanilla.toc
-   D /trunk/Ace3_Wrath.toc
 
-Update toc structure
+Bump toc
 ------------------------------------------------------------------------
-r1342 | nevcairiel | 2024-05-26 11:49:35 +0000 (Sun, 26 May 2024) | 1 line
+r1393 | funkehdude | 2026-04-10 01:52:49 +0000 (Fri, 10 Apr 2026) | 1 line
 Changed paths:
-   M /trunk
-   M /trunk/AceTimer-3.0/AceTimer-3.0.lua
+   M /trunk/Ace3.toc
 
-AceTimer-3.0: fix callback parameter name in docs
+Bump toc
+------------------------------------------------------------------------
+r1392 | funkehdude | 2026-03-16 00:15:39 +0000 (Mon, 16 Mar 2026) | 1 line
+Changed paths:
+   M /trunk/Ace3.toc
+
+Bump toc
+------------------------------------------------------------------------
+r1391 | funkehdude | 2026-03-06 14:48:32 +0000 (Fri, 06 Mar 2026) | 1 line
+Changed paths:
+   M /trunk/AceGUI-3.0/widgets/AceGUIWidget-Slider.lua
+
+AceGUI-3.0/widgets/AceGUIWidget-Slider: Workaround font loading issue sometimes making freshly created editboxes blank until the text is changed.
 ------------------------------------------------------------------------
 

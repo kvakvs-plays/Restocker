@@ -7,6 +7,7 @@ local eventsModule = RsModule.eventsModule
 local bagModule = RsModule.bagModule ---@type RsBagModule
 local bankModule = RsModule.bankModule ---@type RsBankModule
 local buyiModule = RsModule.buyIngredientsModule ---@type RsBuyIngredientsModule
+local aceMainFrameModule = RsModule.aceMainFrameModule ---@type RsAceMainFrameModule
 local merchantModule = RsModule.merchantModule ---@type RsMerchantModule
 local restockerModule = RsModule.restockerModule ---@type RsRestockerModule
 
@@ -86,12 +87,15 @@ end
 function eventsModule.OnLogout()
   local settings = restockerModule.settings
 
+  aceMainFrameModule:SavePosition()
+
+  if not RS.MainFrame then
+    return
+  end
+
   if settings.framePos == nil then
     settings.framePos = {}
   end
-
-  RS:Show()
-  RS:Hide()
 
   local point, relativeTo, relativePoint, xOfs, yOfs = RS.MainFrame:GetPoint(RS.MainFrame:GetNumPoints())
 

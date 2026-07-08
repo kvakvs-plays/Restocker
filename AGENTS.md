@@ -8,7 +8,7 @@ These instructions apply to the whole repository.
 - Lua target is **Lua 5.1** with WoW additions: `bit` is available, but there is no `goto`, no `bit32`, and no integer division operator `//`.
 - The addon uses Ace3 libraries where possible for UI, addon state, options, events, timers, and minimap integration.
 - Keep code compatible with the supported Classic-era addon clients already represented by the repository TOC files. Check the actual TOC files and `toc_template.toc` before changing interface numbers, load order, or saved variable declarations.
-- The local Blizzard UI source checkout is at `F:\Projects\WowAddons\BlizzardInterfaceCode\`. Use it as the first reference for WoW UI/API behavior when available.
+- The local Blizzard UI source checkout is at `BlizzardInterfaceCode\`. Use it as the first reference for WoW UI/API behavior when available.
 
 ## Working Rules
 

@@ -31,6 +31,7 @@ Src\Events.lua
 Src\AddonOptions.lua
 Src\Settings.lua
 
+Frames\AceMainFrame.lua
 Frames\MainFrame.lua
 Frames\ListFrame.lua
 Frames\LegacyOptionsPanel.lua

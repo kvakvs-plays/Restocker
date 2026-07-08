@@ -7,7 +7,7 @@ restockerModule.settings = --[[---@type RsSettings]] {}
 
 local restockItemList = {} ---@type RsTradeCommand[]
 
-local mainFrameModule = RsModule.mainFrameModule
+local aceMainFrameModule = RsModule.aceMainFrameModule
 local bankModule = RsModule.bankModule
 local eventsModule = RsModule.eventsModule
 local merchantModule = RsModule.merchantModule
@@ -35,23 +35,22 @@ RS.addonName = "|cff8d63ffRestocker|r "
 
 function RS:Show()
   if RS.loaded then
-    local menu = RS.MainFrame or mainFrameModule:CreateMenu();
-    menu:Show()
+    aceMainFrameModule:Show()
     return RS:Update()
   end
 end
 
 function RS:Hide()
   if RS.loaded then
-    local menu = RS.MainFrame or mainFrameModule:CreateMenu();
-    return menu:Hide()
+    aceMainFrameModule:Hide()
   end
 end
 
 function RS:Toggle()
   if RS.loaded then
-    local menu = RS.MainFrame or mainFrameModule:CreateMenu();
-    return menu:SetShown(not menu:IsShown()) or false
+    if aceMainFrameModule:Toggle() then
+      return RS:Update()
+    end
   end
 end
 
@@ -139,33 +138,7 @@ function RS:Update()
     end)
   end
 
-  for _, f in ipairs(RS.framepool) do
-    f.isInUse = false
-    f:SetParent(RS.hiddenFrame)
-    f:Hide()
-  end
-
-  ---@param item RsTradeCommand
-  for _, item in ipairs(restockItemList) do
-    --RS:Debug("Update row for item: " .. item.itemName)
-
-    local f = RS:GetFirstEmpty(item)
-
-    f:SetParent(RS.MainFrame.scrollChild)
-    f.isInUse = true
-    self:UpdateRestockListRow(f, item)
-    f:Show()
-  end
-
-  local height = 0
-
-  for _, f in ipairs(RS.framepool) do
-    if f.isInUse then
-      height = height + 15
-    end
-  end
-
-  RS.MainFrame.scrollChild:SetHeight(height)
+  aceMainFrameModule:Refresh(restockItemList)
 end
 
 --[[
@@ -191,11 +164,8 @@ function RS:AddProfile(newProfile)
   settings.currentProfile = newProfile ---@type string
   settings.profiles[newProfile] = {} ---@type RsTradeCommand
 
-  local menu = RS.MainFrame or mainFrameModule:CreateMenu()
-  menu:Show()
+  aceMainFrameModule:Show()
   RS:Update()
-
-  UIDropDownMenu_SetText(RS.MainFrame.profileDropDownMenu, settings.currentProfile)
 end
 
 --[[
@@ -205,9 +175,14 @@ end
 function RS:DeleteProfile(profile)
   local settings = restockerModule.settings
   local currentProfile = settings.currentProfile
+  local profileCount = 0
+
+  for _profileName, _ in pairs(settings.profiles) do
+    profileCount = profileCount + 1
+  end
 
   if currentProfile == profile then
-    if #settings.profiles > 1 then
+    if profileCount > 1 then
       settings.profiles[currentProfile] = nil
       local firstKey, _ = next(settings.profiles)
       settings.currentProfile = --[[---@not nil]] firstKey
@@ -220,11 +195,12 @@ function RS:DeleteProfile(profile)
     settings.profiles[profile] = nil
   end
 
-  UIDropDownMenu_SetText(RS.optionsPanel.deleteProfileMenu, "")
+  if RS.optionsPanel and RS.optionsPanel.deleteProfileMenu then
+    UIDropDownMenu_SetText(RS.optionsPanel.deleteProfileMenu, "")
+  end
 
-  local menu = RS.MainFrame or mainFrameModule:CreateMenu()
   RS.profileSelectedForDeletion = ""
-  UIDropDownMenu_SetText(RS.MainFrame.profileDropDownMenu, settings.currentProfile)
+  RS:Update()
 end
 
 --[[
@@ -239,8 +215,7 @@ function RS:RenameCurrentProfile(newName)
   settings.profiles[currentProfile] = nil
 
   settings.currentProfile = newName
-
-  UIDropDownMenu_SetText(RS.MainFrame.profileDropDownMenu, settings.currentProfile)
+  RS:Update()
 end
 
 --[[
@@ -250,7 +225,6 @@ function RS:ChangeProfile(newProfile)
   local settings = restockerModule.settings
   settings.currentProfile = newProfile
 
-  UIDropDownMenu_SetText(RS.MainFrame.profileDropDownMenu, settings.currentProfile)
   RS:Update()
   RS:Print("Current profile: " .. newProfile)
 
@@ -276,6 +250,43 @@ function RS:CopyProfile(profileToCopy)
   RS:Update()
 end
 
+---@param text string|number
+function RS:addItem(text)
+  local settings = restockerModule.settings
+  local currentProfile = settings.profiles[settings.currentProfile]
+
+  if not currentProfile then
+    return
+  end
+
+  if tonumber(text) then
+    text = --[[---@not nil]] tonumber(text)
+  end
+
+  local itemInfo = RS.GetItemInfo(text)
+  if itemInfo == nil then
+    RS.addItemWait[text] = true
+    return
+  else
+    for _, item in ipairs(currentProfile) do
+      if item.itemName:lower() == ( --[[---@not nil]] itemInfo).itemName:lower() then
+        return
+      end
+    end
+  end
+
+  local buyItem = --[[---@type RsTradeCommand]] {}
+
+  buyItem.itemName = ( --[[---@not nil]] itemInfo).itemName
+  buyItem.itemLink = ( --[[---@not nil]] itemInfo).itemLink
+  buyItem.itemID = ( --[[---@not nil]] itemInfo).itemId
+  buyItem.amount = 1
+
+  table.insert(settings.profiles[settings.currentProfile], buyItem)
+
+  RS:Update()
+end
+
 function RS:loadSettings()
   local settings = restockerModule.settings
   settings.profiles = settings.profiles or --[[---@type RsProfileCollection]] {}
@@ -287,6 +298,7 @@ function RS:loadSettings()
 
   settings.currentProfile = settings.currentProfile or "default"
   settings.framePos = settings.framePos or {}
+  settings.aceFrameStatus = settings.aceFrameStatus or { width = 700, height = 500 }
   settings.autoOpenAtBank = settings.autoOpenAtBank or false
   settings.autoOpenAtMerchant = settings.autoOpenAtMerchant or false
 
@@ -406,16 +418,9 @@ function RS:OnEnable()
   -- Options tabs
   --RS:CreateOptionsMenu(TOCNAME)
 
-  RS:Show()
-  RS:Hide()
-
   eventsModule:InitEvents()
 
   RsModule:CallInEachModule("OnModuleInit", nil)
-
-  if not RS.MainFrame then
-    mainFrameModule:CreateMenu()
-  end -- setup the UI
 
   self:OptionsInit()
   RS.loaded = true

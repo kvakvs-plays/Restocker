@@ -1,6 +1,9 @@
 local _TOCNAME, _ADDONPRIVATE = ... ---@type RestockerAddon
 local RS = RS_ADDON ---@type RestockerAddon
 
+-- Deprecated legacy frame UI rows. The active /rs UI is implemented in
+-- Frames\AceMainFrame.lua; this file remains loadable for compatibility only.
+
 local bankModule = RsModule.bankModule ---@type RsBankModule
 local restockerModule = RsModule.restockerModule ---@type RsRestockerModule
 local eventsModule = RsModule.eventsModule ---@type RsEventsModule

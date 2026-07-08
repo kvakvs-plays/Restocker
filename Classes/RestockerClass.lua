@@ -55,6 +55,7 @@
 ---@field autoOpenAtMerchant boolean
 ---@field currentProfile string
 ---@field framePos table
+---@field aceFrameStatus table AceGUI frame position and size
 ---@field loginMessage boolean Show restocker hello message
 ---@field profiles RsProfileCollection
 ---@field debugMessages boolean

@@ -21,16 +21,17 @@ Source of truth: `toc_template.toc`. Generated TOCs should keep the same Lua loa
 11. `Src\Events.lua`
 12. `Src\AddonOptions.lua`
 13. `Src\Settings.lua`
-14. `Frames\MainFrame.lua`
-15. `Frames\ListFrame.lua`
-16. `Frames\LegacyOptionsPanel.lua`
-17. `Src\Bank.lua`
-18. `Src\Merchant.lua`
-19. `Src\Item.lua`
-20. `Src\Cache.lua`
-21. `Src\Inspect.lua`
-22. `Src\Bag.lua`
-23. `Src\Inventory.lua`
+14. `Frames\AceMainFrame.lua`
+15. `Frames\MainFrame.lua`
+16. `Frames\ListFrame.lua`
+17. `Frames\LegacyOptionsPanel.lua`
+18. `Src\Bank.lua`
+19. `Src\Merchant.lua`
+20. `Src\Item.lua`
+21. `Src\Cache.lua`
+22. `Src\Inspect.lua`
+23. `Src\Bag.lua`
+24. `Src\Inventory.lua`
 
 ## Runtime Shape
 
@@ -41,7 +42,7 @@ Source of truth: `toc_template.toc`. Generated TOCs should keep the same Lua loa
   - Startup: `RS:OnInitialize()` detects versions, `RS:OnEnable()` loads settings, registers slash commands, initializes events/modules/UI/options.
   - Merchant restock: `MERCHANT_SHOW` -> `eventsModule.OnMerchantShow()` -> `merchantModule:Restock()`.
   - Bank restock: `BANKFRAME_OPENED` -> `eventsModule.OnBankOpen()` -> `bankModule:RestartRestocking()` -> `RS.onUpdateFrame` -> `bankModule.BankUpdateFn()` -> bank coroutine.
-  - Item add: main-frame edit box/button/shift-click -> `RS:addItem()` -> `RS.GetItemInfo()` cache -> profile item list -> `RS:Update()`.
+  - Item add: Ace main-frame edit box/button/shift-click/drag-drop -> `RS:addItem()` -> `RS.GetItemInfo()` cache -> profile item list -> `RS:Update()`.
 
 ## Addon Files
 
@@ -75,6 +76,7 @@ Functions:
 - `RS:RenameCurrentProfile(newName)`
 - `RS:ChangeProfile(newProfile)`
 - `RS:CopyProfile(profileToCopy)`
+- `RS:addItem(text)`
 - `RS:loadSettings()`
 - `RS:RegisterSlashCommands()`
 - `SlashCmdList.RESTOCKER` handler
@@ -207,9 +209,33 @@ Functions:
 - `settingsModule:DeleteProfile(name)`
 - `settingsModule:GetProfileNames()`
 
+### `Frames\AceMainFrame.lua`
+
+Feature: active AceGUI Restocker window used by `/rs`, with profile selection, item add controls, drag-drop item add, rows of restock item controls, and saved AceGUI frame status.
+
+Functions:
+- `getCurrentProfile()`
+- `addItemFromText(text)`
+- `addCursorItem()`
+- `installDropTarget(frame)`
+- `refreshAfterBankSensitiveChange()`
+- `createProfileList()`
+- `removeItem(itemToRemove)`
+- `aceMainFrameModule:GetOrCreateFrame()`
+- `aceMainFrameModule:IsShown()`
+- `aceMainFrameModule:Show()`
+- `aceMainFrameModule:Hide()`
+- `aceMainFrameModule:Toggle()`
+- `aceMainFrameModule:SavePosition()`
+- `aceMainFrameModule:CreateToolbar(parent)`
+- `aceMainFrameModule:CreateAddControls(parent)`
+- `aceMainFrameModule:CreateListHeader(parent)`
+- `aceMainFrameModule:CreateItemRow(parent, item)`
+- `aceMainFrameModule:Refresh(restockItems)`
+
 ### `Frames\MainFrame.lua`
 
-Feature: main Restocker window, item add controls, profile dropdown, settings button, shift-click item link hook.
+Feature: deprecated legacy frame-based Restocker window. It remains loadable for compatibility, but normal `/rs` show/hide/toggle uses `Frames\AceMainFrame.lua`.
 
 Functions:
 - `mainFrameModule:CreateAddonFrame()`
@@ -233,11 +259,10 @@ Functions:
 - `mainFrameModule:CreateMenu()`
 - `ChatEdit_InsertLink(link)`
 - `RS.DropDownMenuSelectProfile(self, arg1, arg2, checked)`
-- `RS:addItem(text)`
 
 ### `Frames\ListFrame.lua`
 
-Feature: reusable rows in the main list, amount/reputation edit boxes, per-item operation toggles, and delete button.
+Feature: deprecated legacy reusable rows for `Frames\MainFrame.lua`. The active `/rs` rows are AceGUI controls in `Frames\AceMainFrame.lua`.
 
 Functions:
 - `rsTooltip(control, text)`
@@ -503,31 +528,27 @@ Functions:
 
 ### Main Window
 
-- `Frames\MainFrame.lua` creates named frame `RestockerMainFrame` via `mainFrameModule:CreateAddonFrame()`.
-- `RS:Show()`, `RS:Hide()`, and `RS:Toggle()` create/show/hide the main frame through `mainFrameModule:CreateMenu()`.
-- Dragging is wired by `addonFrame:RegisterForDrag("LeftButton")`, `OnDragStart` -> `StartMoving`, `OnDragStop` -> `StopMovingOrSizing`.
-- Add button `OnClick` reads the add edit box text and calls `RS:addItem(text)`.
-- Add edit box:
-  - `OnEnterPressed` calls `RS:addItem(text)`.
-  - `OnMouseUp` and `OnReceiveDrag` read `GetCursorInfo()` and add dragged item links.
-  - `OnEnter`/`OnLeave` show and hide a tooltip.
+- `RS:Show()`, `RS:Hide()`, and `RS:Toggle()` delegate to `aceMainFrameModule`.
+- `Frames\AceMainFrame.lua` creates an AceGUI `Frame` and stores size/position in `restockerModule.settings.aceFrameStatus`.
+- Profile dropdown values come from `restockerModule.settings.profiles`; selecting a profile calls `RS:ChangeProfile(profileName)`.
+- Add controls:
+  - Add edit box `OnEnterPressed` calls `RS:addItem(text)`.
+  - Add button reads the AceGUI edit box text and calls `RS:addItem(text)`.
+  - AceGUI edit box shift-click insertion uses AceGUI's focused-edit-box hook.
+  - Window/content/list drop targets read `GetCursorInfo()` and add dragged item links through `RS:addItem(info2)`.
 - Settings button `OnClick` calls `LibStub("AceConfigDialog-3.0"):Open(TOCNAME)`.
-- Profile dropdown is `Restocker_ProfileDropDownMenu`; its `initialize` builds profile buttons whose `func` is `RS.DropDownMenuSelectProfile`, which calls `RS:ChangeProfile(arg1)`.
-- Shift-click item insertion is hooked by replacing `ChatEdit_InsertLink`; when the Restocker edit box is focused it calls `RS:addItem(link)`, otherwise delegates to the original function.
+- `Frames\MainFrame.lua` and `Frames\ListFrame.lua` are deprecated legacy UI files. They remain loaded but are no longer created by startup or slash-command routing.
 
 ### Restock List Rows
 
-- `Frames\ListFrame.lua` creates pooled row frames under `RS.MainFrame.scrollChild`.
-- Amount edit box:
-  - `OnEnterPressed` commits amount, clears focus, refreshes UI, and retriggers bank handling if the bank is open.
-  - `OnKeyUp` updates the profile amount while typing.
-- Required-reputation edit box:
-  - `OnEnterPressed` commits reaction and refreshes UI.
-  - `OnKeyUp` updates the profile reaction while typing.
-- Delete button `OnClick` removes the item from the active profile and calls `RS:Update()`.
-- Merchant button `OnClick` toggles `item.buyFromMerchant` and refreshes the row.
-- Stash-to-bank button `OnClick` toggles `item.stashTobank` and refreshes the row.
-- Restock-from-bank button `OnClick` toggles `item.restockFromBank` and refreshes the row.
+- `Frames\AceMainFrame.lua` rebuilds visible rows from the sorted active profile list supplied by `RS:Update()`.
+- Each row writes directly to the active `RsTradeCommand`:
+  - amount edit box writes `item.amount`; enter/OK refreshes UI and retriggers bank handling when the bank is open.
+  - auto-buy checkbox writes `item.buyFromMerchant`, with nil/true displayed as enabled.
+  - stash-to-bank checkbox writes `item.stashTobank`.
+  - restock-from-bank checkbox writes `item.restockFromBank`.
+  - required-reputation dropdown writes numeric `item.reaction` values `0`, `4`, `5`, `6`, `7`, or `8`.
+  - delete button removes the item from the active profile and calls `RS:Update()`.
 
 ### Options UI
 

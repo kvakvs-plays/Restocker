@@ -1,6 +1,9 @@
 local TOCNAME, _ADDONPRIVATE = ... ---@type RestockerAddon
 local RS = RS_ADDON ---@type RestockerAddon
 
+-- Deprecated legacy frame UI. The active /rs UI is implemented in
+-- Frames\AceMainFrame.lua; this file remains loadable for compatibility only.
+
 ---@class RsMainFrameModule
 local mainFrameModule = RsModule.mainFrameModule ---@type RsMainFrameModule
 local restockerModule = RsModule.restockerModule ---@type RsRestockerModule
@@ -225,7 +228,7 @@ end
 -- Handle shiftclicks of items
 local origChatEdit_InsertLink = ChatEdit_InsertLink;
 ChatEdit_InsertLink = function(link)
-  if RS.MainFrame.editBox:IsVisible() and RS.MainFrame.editBox:HasFocus() then
+  if RS.MainFrame and RS.MainFrame.editBox and RS.MainFrame.editBox:IsVisible() and RS.MainFrame.editBox:HasFocus() then
     return RS:addItem(link)
   end
   return origChatEdit_InsertLink(link);
@@ -233,38 +236,4 @@ end
 
 function RS.DropDownMenuSelectProfile(self, arg1, arg2, checked)
   RS:ChangeProfile(arg1)
-end
-
----@param text string|number
-function RS:addItem(text)
-  local settings = restockerModule.settings
-  local currentProfile = settings.profiles[settings.currentProfile]
-
-  if tonumber(text) then
-    text = --[[---@not nil]] tonumber(text)
-  end
-
-  --local itemName, itemLink = GetItemInfo(text)
-  local itemInfo = RS.GetItemInfo(text)
-  if itemInfo == nil then
-    RS.addItemWait[text] = true
-    return
-  else
-    for _, item in ipairs(currentProfile) do
-      if item.itemName:lower() == ( --[[---@not nil]] itemInfo).itemName:lower() then
-        return
-      end
-    end
-  end
-
-  local buyItem = --[[---@type RsTradeCommand]] {}
-
-  buyItem.itemName = ( --[[---@not nil]] itemInfo).itemName
-  buyItem.itemLink = ( --[[---@not nil]] itemInfo).itemLink
-  buyItem.itemID = ( --[[---@not nil]] itemInfo).itemId
-  buyItem.amount = 1
-
-  table.insert(settings.profiles[settings.currentProfile], buyItem)
-
-  RS:Update()
 end
