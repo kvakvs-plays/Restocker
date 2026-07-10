@@ -142,20 +142,6 @@ function RS:Update()
 end
 
 --[[
-  GET FIRST UNUSED SCROLLCHILD FRAME
-]]
----@param item RsTradeCommand
----@return RsRestockingListRow
-function RS:GetFirstEmpty(item)
-  for i, frame in ipairs(RS.framepool) do
-    if not frame.isInUse then
-      return frame
-    end
-  end
-  return self:CreateRestockListRow(item)
-end
-
---[[
   ADD PROFILE
 ]]
 ---@param newProfile string
@@ -297,7 +283,6 @@ function RS:loadSettings()
   end
 
   settings.currentProfile = settings.currentProfile or "default"
-  settings.framePos = settings.framePos or {}
   settings.aceFrameStatus = settings.aceFrameStatus or { width = 700, height = 500 }
   settings.autoOpenAtBank = settings.autoOpenAtBank or false
   settings.autoOpenAtMerchant = settings.autoOpenAtMerchant or false
@@ -388,9 +373,6 @@ function RS:OnEnable()
   restockerModule.settings = RestockerSettings
 
   self.restockedItems = false
-  self.framepool = --[[---@type RsRestockingListRow[] ]] {}
-  self.hiddenFrame = CreateFrame("Frame", nil, --[[---@type WowControl]] UIParent)
-  self.hiddenFrame:Hide()
   self:loadSettings()
 
   -- Do more initialization here, that really enables the use of your addon.
@@ -483,7 +465,7 @@ end
 
 --- Compatibility layer for function deprecated in 11.0
 function restockerModule:GetMerchantItemInfo(index)
-  if C_MerchantFrame then
+  if C_MerchantFrame and C_MerchantFrame.GetItemInfo then
     return C_MerchantFrame.GetItemInfo(index)
   else
     local name, texture, price, quantity, numAvailable, isPurchasable, isUsable, extendedCost, currencyID, spellID =
@@ -495,7 +477,7 @@ function restockerModule:GetMerchantItemInfo(index)
       stackCount = quantity,
       numAvailable = numAvailable,
       isPurchasable = isPurchasable,
-      isUsable = isUsable,
+      isUsable = isUsable ~= 0 and isUsable ~= false,
       hasExtendedCost = extendedCost,
       currencyID = currencyID,
       spellID = spellID,

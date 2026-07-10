@@ -85,24 +85,7 @@ function eventsModule.OnItemInfoReceived(itemID, success)
 end
 
 function eventsModule.OnLogout()
-  local settings = restockerModule.settings
-
   aceMainFrameModule:SavePosition()
-
-  if not RS.MainFrame then
-    return
-  end
-
-  if settings.framePos == nil then
-    settings.framePos = {}
-  end
-
-  local point, relativeTo, relativePoint, xOfs, yOfs = RS.MainFrame:GetPoint(RS.MainFrame:GetNumPoints())
-
-  settings.framePos.point = point
-  settings.framePos.relativePoint = relativePoint
-  settings.framePos.xOfs = xOfs
-  settings.framePos.yOfs = yOfs
 end
 
 function eventsModule.OnUiErrorMessage(id, message)

@@ -22,16 +22,14 @@ Source of truth: `toc_template.toc`. Generated TOCs should keep the same Lua loa
 12. `Src\AddonOptions.lua`
 13. `Src\Settings.lua`
 14. `Frames\AceMainFrame.lua`
-15. `Frames\MainFrame.lua`
-16. `Frames\ListFrame.lua`
-17. `Frames\LegacyOptionsPanel.lua`
-18. `Src\Bank.lua`
-19. `Src\Merchant.lua`
-20. `Src\Item.lua`
-21. `Src\Cache.lua`
-22. `Src\Inspect.lua`
-23. `Src\Bag.lua`
-24. `Src\Inventory.lua`
+15. `Frames\LegacyOptionsPanel.lua`
+16. `Src\Bank.lua`
+17. `Src\Merchant.lua`
+18. `Src\Item.lua`
+19. `Src\Cache.lua`
+20. `Src\Inspect.lua`
+21. `Src\Bag.lua`
+22. `Src\Inventory.lua`
 
 ## Runtime Shape
 
@@ -70,7 +68,6 @@ Functions:
 - `RS:Toggle()`
 - `RS:SlashCommand(args)`
 - `RS:Update()`
-- `RS:GetFirstEmpty(item)`
 - `RS:AddProfile(newProfile)`
 - `RS:DeleteProfile(profile)`
 - `RS:RenameCurrentProfile(newName)`
@@ -119,7 +116,7 @@ Functions:
 
 ### `Classes\RestockerClass.lua`
 
-Feature: EmmyLua-style type declarations for `RestockerAddon`, settings, commands, defaults, profiles, and reusable list-row frames.
+Feature: EmmyLua-style type declarations for `RestockerAddon`, settings, commands, defaults, and profiles.
 
 Functions:
 - None.
@@ -232,58 +229,6 @@ Functions:
 - `aceMainFrameModule:CreateListHeader(parent)`
 - `aceMainFrameModule:CreateItemRow(parent, item)`
 - `aceMainFrameModule:Refresh(restockItems)`
-
-### `Frames\MainFrame.lua`
-
-Feature: deprecated legacy frame-based Restocker window. It remains loadable for compatibility, but normal `/rs` show/hide/toggle uses `Frames\AceMainFrame.lua`.
-
-Functions:
-- `mainFrameModule:CreateAddonFrame()`
-- `mainFrameModule:CreateListInset(addonFrame)`
-- `mainFrameModule:CreateScrollFrame(addonFrame, listInset)`
-- `mainFrameModule:CreateScrollChild(scrollFrame, addonFrame)`
-- `mainFrameModule:CreateTitle(addonFrame)`
-- `mainFrameModule:CreateAddGroup(addonFrame, listInset)`
-- `mainFrameModule:CreateAddButton(addGrp)`
-- `AddButton.OnClick(self, button, down)`
-- `mainFrameModule:CreateEditbox(addonFrame, addBtn)`
-- `EditBox.OnEnterPressed(self)`
-- `EditBox.OnMouseUp(self, button)`
-- `EditBox.OnReceiveDrag(self)`
-- `EditBox.OnEnter(self)`
-- `EditBox.OnLeave(self, motion)`
-- `mainFrameModule:CreateSettingsButton(addonFrame)`
-- `SettingsButton.OnClick(self, button, down)`
-- `mainFrameModule:CreateProfilesDropdown(addonFrame)`
-- `Restocker_ProfileDropDownMenu.initialize(self, level)`
-- `mainFrameModule:CreateMenu()`
-- `ChatEdit_InsertLink(link)`
-- `RS.DropDownMenuSelectProfile(self, arg1, arg2, checked)`
-
-### `Frames\ListFrame.lua`
-
-Feature: deprecated legacy reusable rows for `Frames\MainFrame.lua`. The active `/rs` rows are AceGUI controls in `Frames\AceMainFrame.lua`.
-
-Functions:
-- `rsTooltip(control, text)`
-- `rsAmountEditBox(frame, chainTo)`
-- `AmountEditBox.OnEnterPressed(self)`
-- `AmountEditBox.OnKeyUp(self)`
-- `rsRequireReactionEditBox(frame, chainTo)`
-- `ReactionEditBox.OnEnterPressed(self)`
-- `ReactionEditBox.OnKeyUp(self)`
-- `rsOnDeleteButtonClick(self)`
-- `rsDeleteButton(frame)`
-- `rsBuyFromMerchantButton(frame, chainTo, item)`
-- `BuyFromMerchantButton.OnClick(self)`
-- `rsStashToBankButton(frame, chainTo, item)`
-- `StashToBankButton.OnClick(self)`
-- `rsRestockFromBankButton(frame, chainTo, item)`
-- `RestockFromBankButton.OnClick(self)`
-- `RS:CreateFrame()`
-- `RS:CreateRestockListRow(item)`
-- `RS:UpdateRestockListRow(row, item)`
-- `RS:addListFrames()`
 
 ### `Frames\LegacyOptionsPanel.lua`
 
@@ -537,7 +482,6 @@ Functions:
   - AceGUI edit box shift-click insertion uses AceGUI's focused-edit-box hook.
   - Window/content/list drop targets read `GetCursorInfo()` and add dragged item links through `RS:addItem(info2)`.
 - Settings button `OnClick` calls `LibStub("AceConfigDialog-3.0"):Open(TOCNAME)`.
-- `Frames\MainFrame.lua` and `Frames\ListFrame.lua` are deprecated legacy UI files. They remain loaded but are no longer created by startup or slash-command routing.
 
 ### Restock List Rows
 

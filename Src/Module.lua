@@ -8,7 +8,6 @@
 ---@field eventsModule RsEventsModule
 ---@field inventoryModule RsInventoryModule
 ---@field itemModule RsItemModule
----@field mainFrameModule RsMainFrameModule
 ---@field merchantModule RsMerchantModule
 ---@field recipeModule RsRecipeModule
 ---@field restockerModule RsRestockerModule
@@ -23,7 +22,6 @@ local rsModule = {
   eventsModule = {},
   itemModule = {},
   inventoryModule = {},
-  mainFrameModule = {},
   merchantModule = {},
   recipeModule = {},
   restockerModule = {},

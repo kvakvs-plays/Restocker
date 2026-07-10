@@ -12,7 +12,7 @@ local restockerModule = RsModule.restockerModule ---@type RsRestockerModule
 local AceGUI = LibStub("AceGUI-3.0")
 
 local reputationList = {
-  [0] = "Any reputation",
+  [0] = "Any rep",
   [4] = "Neutral",
   [5] = "Friendly",
   [6] = "Honored",
@@ -158,7 +158,7 @@ function aceMainFrameModule:CreateToolbar(parent)
   profileDropDown:SetLabel("Profile")
   profileDropDown:SetList(profileList, profileOrder)
   profileDropDown:SetValue(settings.currentProfile)
-  profileDropDown:SetWidth(220)
+  profileDropDown:SetWidth(160)
   profileDropDown:SetCallback("OnValueChanged", function(_widget, _event, profileName)
     RS:ChangeProfile(profileName)
   end)
@@ -166,7 +166,7 @@ function aceMainFrameModule:CreateToolbar(parent)
 
   local settingsButton = AceGUI:Create("Button")
   settingsButton:SetText("Settings")
-  settingsButton:SetWidth(100)
+  settingsButton:SetWidth(90)
   settingsButton:SetCallback("OnClick", function()
     LibStub("AceConfigDialog-3.0"):Open(TOCNAME)
   end)
@@ -175,8 +175,8 @@ end
 
 function aceMainFrameModule:CreateAddControls(parent)
   local editBox = AceGUI:Create("EditBox")
-  editBox:SetLabel("Item name or item ID (or drag&drop an item here)")
-  editBox:SetWidth(420)
+  editBox:SetLabel("Item name or item ID (or drop an item here)")
+  editBox:SetWidth(250)
   editBox:SetCallback("OnEnterPressed", function(widget, _event, value)
     addItemFromText(value)
     widget:SetText("")
@@ -187,7 +187,7 @@ function aceMainFrameModule:CreateAddControls(parent)
 
   local addButton = AceGUI:Create("Button")
   addButton:SetText("Add")
-  addButton:SetWidth(80)
+  addButton:SetWidth(60)
   addButton:SetCallback("OnClick", function()
     addItemFromText(editBox.editbox:GetText())
     editBox:SetText("")
@@ -299,7 +299,7 @@ function aceMainFrameModule:CreateItemRow(parent, item)
   local reputationDropDown = AceGUI:Create("Dropdown")
   reputationDropDown:SetList(reputationList, reputationOrder)
   reputationDropDown:SetValue(item.reaction or 0)
-  reputationDropDown:SetWidth(130)
+  reputationDropDown:SetWidth(100)
   reputationDropDown:SetCallback("OnValueChanged", function(_widget, _event, value)
     item.reaction = value or 0
     RS:Update()
@@ -307,8 +307,8 @@ function aceMainFrameModule:CreateItemRow(parent, item)
   row:AddChild(reputationDropDown)
 
   local deleteButton = AceGUI:Create("Button")
-  deleteButton:SetText("Delete")
-  deleteButton:SetWidth(70)
+  deleteButton:SetText("X")
+  deleteButton:SetWidth(40)
   deleteButton:SetCallback("OnClick", function()
     removeItem(item)
   end)

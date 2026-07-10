@@ -60,9 +60,10 @@ end
 
 ---https://wowwiki-archive.fandom.com/wiki/API_GetMerchantItemInfo
 ---@param i number
----@return string, string, number, number, number, boolean, number {name, texture, price, stackCount, numAvailable, isUsable, extendedCost}
+---@return string, string,  number, number,        number,       boolean,       boolean,  number {name, texture, price, stackCount, numAvailable, isUsable, extendedCost}
+---        name,   texture, price,  stackQuantity, numAvailable, isPurchasable, isUsable, extendedCost = GetMerchantItemInfo(index)
 function GetMerchantItemInfo(i)
-  return "", "", 0, 0, 0, false, 0
+  return "name", "texture", 0, 0, 0, true, false, 0
 end
 
 ---@param i number

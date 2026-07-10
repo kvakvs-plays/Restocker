@@ -10,7 +10,6 @@
 ---@field autoOpenAtBank boolean
 ---@field autoOpenAtMerchant boolean
 ---@field loginMessage boolean
----@field framePos table<number>
 
 local rsConfClass         = {}
 rsConfClass.__index = rsConfClass
