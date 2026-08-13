@@ -21,7 +21,8 @@ RS_ADDON = RS ---@type RestockerAddon
 RS.defaults = {
   prefix = "|cff8d63ffRestocker|r ",
   color = "8d63ff",
-  slash = "|cff8d63ff/rs|r "
+  slash = "|cff8d63ff/rs|r ",
+  mainFrameWidth = 840
 }
 
 RS.BAG_ICON = "Interface\\ICONS\\INV_Misc_Bag_10_Green" -- bag icon for add tooltip
@@ -283,7 +284,10 @@ function RS:loadSettings()
   end
 
   settings.currentProfile = settings.currentProfile or "default"
-  settings.aceFrameStatus = settings.aceFrameStatus or { width = 700, height = 500 }
+  settings.aceFrameStatus = settings.aceFrameStatus or {}
+  settings.aceFrameStatus.width = math.max(settings.aceFrameStatus.width or RS.defaults.mainFrameWidth,
+    RS.defaults.mainFrameWidth)
+  settings.aceFrameStatus.height = settings.aceFrameStatus.height or 500
   settings.autoOpenAtBank = settings.autoOpenAtBank or false
   settings.autoOpenAtMerchant = settings.autoOpenAtMerchant or false
 

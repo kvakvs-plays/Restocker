@@ -1,3 +1,8 @@
+## Restocker 2026.8.0
+
+- New window for restocking settings
+- Window width and field width adjustments
+
 ## Restocker 2025.11.0
 
 - Added `/rs` and `/restocker` option to toggle slash commands when they might conflict.

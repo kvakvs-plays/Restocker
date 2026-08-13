@@ -33,6 +33,7 @@
 ---@field prefix string
 ---@field color string
 ---@field slash string
+---@field mainFrameWidth number
 
 ---@class RsProfileCollection
 ---@field [string] RsTradeCommand[]|nil

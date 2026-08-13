@@ -96,7 +96,7 @@ function aceMainFrameModule:GetOrCreateFrame()
   end
 
   local settings = restockerModule.settings
-  settings.aceFrameStatus = settings.aceFrameStatus or { width = 700, height = 500 }
+  settings.aceFrameStatus = settings.aceFrameStatus or { width = RS.defaults.mainFrameWidth, height = 500 }
 
   local frame = AceGUI:Create("Frame")
   frame:SetTitle("Restocker")
@@ -209,7 +209,7 @@ function aceMainFrameModule:CreateListHeader(parent)
 
   local amountLabel = AceGUI:Create("Label")
   amountLabel:SetText("Qty")
-  amountLabel:SetWidth(55)
+  amountLabel:SetWidth(95)
   row:AddChild(amountLabel)
 
   local buyLabel = AceGUI:Create("Label")
@@ -248,7 +248,7 @@ function aceMainFrameModule:CreateItemRow(parent, item)
 
   local amountBox = AceGUI:Create("EditBox")
   amountBox:SetText(tostring(item.amount or 0))
-  amountBox:SetWidth(55)
+  amountBox:SetWidth(95)
   amountBox:SetCallback("OnTextChanged", function(_widget, _event, value)
     if value == "" then
       value = "0"
