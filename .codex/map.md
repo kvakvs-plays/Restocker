@@ -1,6 +1,6 @@
 # Restocker Code Map
 
-Last scanned: 2026-07-08.
+Last scanned: 2026-08-15.
 
 This map is the first stop for finding Restocker code. Keep it current whenever Lua files or named functions are added, removed, renamed, or moved. Function lists intentionally omit line numbers so this file stays stable across small edits.
 
@@ -23,24 +23,21 @@ Source of truth: `toc_template.toc`. Generated TOCs should keep the same Lua loa
 13. `Src\Settings.lua`
 14. `Frames\AceMainFrame.lua`
 15. `Frames\LegacyOptionsPanel.lua`
-16. `Src\Bank.lua`
-17. `Src\Merchant.lua`
-18. `Src\Item.lua`
-19. `Src\Cache.lua`
-20. `Src\Inspect.lua`
-21. `Src\Bag.lua`
-22. `Src\Inventory.lua`
+16. `Src\Merchant.lua`
+17. `Src\Item.lua`
+18. `Src\Cache.lua`
+19. `Src\Inspect.lua`
 
 ## Runtime Shape
 
-- `RsModule` is the shared module registry. Runtime modules attach methods to tables such as `RsModule.bankModule`, `RsModule.merchantModule`, and `RsModule.addonOptionsModule`.
+- `RsModule` is the shared module registry. Runtime modules attach methods to tables such as `RsModule.merchantModule` and `RsModule.addonOptionsModule`.
 - `RS_ADDON` is the AceAddon instance created in `Src\Restocker.lua` with AceConsole and AceEvent mixed in.
 - Saved variables are per-character in `RestockerSettings`, declared in TOCs as `## SavedVariablesPerCharacter: RestockerSettings`.
 - Main user flows:
   - Startup: `RS:OnInitialize()` detects versions, `RS:OnEnable()` loads settings, registers slash commands, initializes events/modules/UI/options.
   - Merchant restock: `MERCHANT_SHOW` -> `eventsModule.OnMerchantShow()` -> `merchantModule:Restock()`.
-  - Bank restock: `BANKFRAME_OPENED` -> `eventsModule.OnBankOpen()` -> `bankModule:RestartRestocking()` -> `RS.onUpdateFrame` -> `bankModule.BankUpdateFn()` -> bank coroutine.
   - Item add: Ace main-frame edit box/button/shift-click/drag-drop -> `RS:addItem()` -> `RS.GetItemInfo()` cache -> profile item list -> `RS:Update()`.
+- Bank restocking is intentionally unavailable pending the rewrite specified in `rewrite.md`; dormant saved preferences are retained.
 
 ## Addon Files
 
@@ -84,10 +81,7 @@ Functions:
 - `RS:OptionsInit()`
 - `RS:OnDisable()`
 - `restockerModule:Color(hex, text)`
-- `restockerModule:GetContainerNumSlots(containerId)`
-- `restockerModule:GetContainerNumFreeSlots(containerId)`
 - `restockerModule:GetMerchantItemInfo(index)`
-- `restockerModule:GetContainerItemInfo(bagId, slot)`
 - `restockerModule:Dump(value, ...)`
 
 ### `Src\KvLib\KvOptions.lua`
@@ -123,7 +117,7 @@ Functions:
 
 ### `Classes\BuyCommand.lua`
 
-Feature: creates restock/bank/merchant item command records.
+Feature: creates merchant restock item command records; dormant bank fields remain on saved records for the future rewrite.
 
 Functions:
 - `buyCommandModule:Create(amount, itemName, itemID, itemLink)`
@@ -160,14 +154,12 @@ Functions:
 
 ### `Src\Events.lua`
 
-Feature: registers WoW events and routes them into merchant, bank, cache, and saved-position behavior.
+Feature: registers WoW events and routes them into merchant, cache, and saved-position behavior.
 
 Functions:
 - `eventsModule.OnEnteringWorld(login, reloadui)`
 - `eventsModule.OnMerchantShow()`
 - `eventsModule.OnMerchantClose()`
-- `eventsModule.OnBankOpen(isMinor)`
-- `eventsModule.OnBankClose()`
 - `eventsModule.OnItemInfoReceived(itemID, success)`
 - `eventsModule.OnLogout()`
 - `eventsModule.OnUiErrorMessage(id, message)`
@@ -215,7 +207,6 @@ Functions:
 - `addItemFromText(text)`
 - `addCursorItem()`
 - `installDropTarget(frame)`
-- `refreshAfterBankSensitiveChange()`
 - `createProfileList()`
 - `removeItem(itemToRemove)`
 - `aceMainFrameModule:GetOrCreateFrame()`
@@ -238,33 +229,12 @@ Functions:
 - `RS:CreateOptionsMenu(name)`
 - `loginMessage.OnClick(self, button)`
 - `autoOpenAtMerchant.OnClick(self, button)`
-- `autoOpenAtBank.OnClick(self, button)`
 - `sortListAlphabetically.OnClick(self, button)`
 - `sortListNumerically.OnClick(self, button)`
 - `addProfileButton.OnClick(self, button, down)`
 - `deleteProfileMenu.initialize(self, level)`
 - `deleteProfileButton.OnClick(self, button, down)`
 - `RS.selectProfileForDeletion(self, arg1, arg2, checked)`
-
-### `Src\Bank.lua`
-
-Feature: bank restocking state, bank-to-bag and bag-to-bank movement loop, coroutine throttled by `OnUpdate`.
-
-Functions:
-- `bankModule:NewState()`
-- `bankModule.OnModuleInit()`
-- `bankModule.StashToBank()`
-- `bankModule.RestockFromBank()`
-- `stateClass:UpdateInventory()`
-- `itemExistsFn(itemname)`
-- `stateClass:CountItemsTooMany()`
-- `stateClass:CountItemsTooFew()`
-- `bankModule:RunRestockLogic()`
-- `restockCoro()`
-- `bankModule:MaintainAndResumeCoro()`
-- `bankModule.BankUpdateFn(self, elapsed)`
-- `bankModule:RestartRestocking()`
-- `RS.Test()`
 
 ### `Src\Merchant.lua`
 
@@ -280,12 +250,11 @@ Functions:
 
 ### `Src\Item.lua`
 
-Feature: item value objects and stack-size comparator.
+Feature: item value objects used by crafting-reagent setup.
 
 Functions:
 - `itemModule:Create(id, englishName)`
 - `itemModule:FromCachedItem(gii)`
-- `itemModule.CompareByStacksizeAscending(a, b)`
 
 ### `Src\Cache.lua`
 
@@ -321,57 +290,6 @@ Functions:
 - `Inspector:putValue(v)`
 - `inspect.inspect(root, options)`
 - `inspect.__call(_, ...)`
-
-### `Src\Bag.lua`
-
-Feature: bag/bank container definitions, bag scans, free-space checks, and item movement primitives.
-
-Functions:
-- `bagSlotFromBag(bag)`
-- `bagModule:NewBagDef(location, bagId, containerSlotId)`
-- `createBackpack()`
-- `createBag(bag)`
-- `createBankMainBag()`
-- `createBankBag(bag)`
-- `onInit_playerBankBags()`
-- `onInit_playerBankBagsReversed()`
-- `onInit_playerBags()`
-- `onInit_playerBagsReversed()`
-- `bagModule.OnModuleInit()`
-- `bagDefClass:NumSlots()`
-- `bagDefClass:HasSpace()`
-- `bagDefClass:PutCursorItem()`
-- `bagModule:GetBankBags(reversed)`
-- `bagModule:GetPlayerBags(reversed)`
-- `bagModule:IsSomethingLocked()`
-- `bagModule:GetItemsInBags(predicate)`
-- `bagModule:ForEachBagItem(handler)`
-- `bagModule:GetItemsInBank(predicate)`
-- `bagModule:PutItemInBank(bankInventory, itemInfo, amount)`
-- `bagModule:PutItemInPlayerBag(playerInventory, itemInfo, amount)`
-- `bagModule:CheckSpace(bags)`
-- `bagModule:ScanBagsFor(bags, predicate)`
-- `rsContainerItemInfoMatchName(name)`
-- `rsContainerItemInfoMatchNameAndSmall(name, moveAmount)`
-- `rsContainerItemInfoMatchNameAndIs1Item(name, moveAmount)`
-- `bagModule:MoveFromBankToPlayer_1(playerInventory, task, candidates, moveAmount)`
-- `bagModule:MoveFromBankToPlayer(playerInventory, task, moveName, moveAmount)`
-- `bagModule:MoveFromPlayerToBank_1(bankInventory, task, candidates, moveAmount)`
-- `bagModule:MoveFromPlayerToBank(bankInventory, task, moveName, moveAmount)`
-- `bagModule:CheckBankBagSpace()`
-
-### `Src\Inventory.lua`
-
-Feature: inventory summaries, item slot records, and stack merge best-fit lookup.
-
-Functions:
-- `inventoryModule:NewSlot(bag, slot, itemCount)`
-- `inventoryModule:NewSlotNumber(bag, slot)`
-- `inventoryModule:NewInventory()`
-- `inventoryClass:SortSlots()`
-- `sortFn(a, b)`
-- `inventoryClass:FindBestFit(cachedItem, amount, bags)`
-- `mergeDestinationSort(a, b)`
 
 ## Spec Files
 
@@ -487,10 +405,8 @@ Functions:
 
 - `Frames\AceMainFrame.lua` rebuilds visible rows from the sorted active profile list supplied by `RS:Update()`.
 - Each row writes directly to the active `RsTradeCommand`:
-  - amount edit box writes `item.amount`; enter/OK refreshes UI and retriggers bank handling when the bank is open.
+  - amount edit box writes `item.amount`; enter/OK refreshes the UI.
   - auto-buy checkbox writes `item.buyFromMerchant`, with nil/true displayed as enabled.
-  - stash-to-bank checkbox writes `item.stashTobank`.
-  - restock-from-bank checkbox writes `item.restockFromBank`.
   - required-reputation dropdown writes numeric `item.reaction` values `0`, `4`, `5`, `6`, `7`, or `8`.
   - delete button removes the item from the active profile and calls `RS:Update()`.
 
@@ -500,7 +416,6 @@ Functions:
 - General options in `Src\AddonOptions.lua`:
   - `loginMessage` toggle writes `restockerModule.settings.loginMessage`.
   - `autoOpenAtMerchant` toggle writes `restockerModule.settings.autoOpenAtMerchant`.
-  - `autoOpenAtBank` toggle writes `restockerModule.settings.autoOpenAtBank`.
   - `sortList` radio select sets `RS.sortListAlphabetically`/`RS.sortListNumerically` and calls `RS:Update()`.
   - `slashCommand` radio select writes `restockerModule.settings.slashCommand`, calls `RS:RegisterSlashCommands()`, and prints the active command note.
   - `debugMessages` toggle writes `restockerModule.settings.debugMessages`.
@@ -534,14 +449,11 @@ Functions:
 - `eventsModule:InitEvents()` registers these handlers on the AceEvent addon object:
   - `MERCHANT_SHOW` -> `eventsModule.OnMerchantShow()`
   - `MERCHANT_CLOSED` -> `eventsModule.OnMerchantClose()`
-  - `BANKFRAME_OPENED` -> `eventsModule.OnBankOpen(isMinor)`
-  - `BANKFRAME_CLOSED` -> `eventsModule.OnBankClose()`
   - `GET_ITEM_INFO_RECEIVED` -> `eventsModule.OnItemInfoReceived(itemID, success)`
   - `PLAYER_LOGOUT` -> `eventsModule.OnLogout()`
   - `PLAYER_ENTERING_WORLD` -> `eventsModule.OnEnteringWorld(login, reloadui)`
   - `UI_ERROR_MESSAGE` -> `eventsModule.OnUiErrorMessage(id, message)`
-- `Src\Bank.lua` creates `RS.onUpdateFrame` and sets `OnUpdate` to `bankModule.BankUpdateFn` for bank transfer pacing.
-- `RsModule:CallInEachModule("OnModuleInit", nil)` invokes module init hooks such as `bagModule.OnModuleInit()`, `bankModule.OnModuleInit()`, and `buyIngredientsModule.OnModuleInit()`.
+- `RsModule:CallInEachModule("OnModuleInit", nil)` invokes module init hooks such as `buyIngredientsModule.OnModuleInit()`.
 
 ## Embedded And Vendored Lua
 

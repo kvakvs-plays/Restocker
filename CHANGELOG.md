@@ -2,6 +2,7 @@
 
 - New window for restocking settings
 - Window width and field width adjustments
+- Removed the legacy bank transfer engine and bank controls pending a reliable rewrite; saved bank preferences are retained.
 
 ## Restocker 2025.11.0
 

@@ -1,31 +1,26 @@
-# Restocker TBC
+# Restocker
 
 Revived a discontinued project for TBC and now WotLK. Old name: Auto Restocker by
 rainfordays @github / ChiliFajita @curseforge.
 
 #### Restocks items on the list automatically (if checked)
 
-### Will only add items by name that are cached by the client (the item you add must be/have been in your bags/bank during this play session).
+### Will only add items by name that are cached by the client.
 
 **Supports adding ANY item by itemID**
 
 ### Profiles
 
 Full support for profiles.
-Useful for pve/pvp differences where items you wish to put into bank will need to be set to 0.
-Example: PVE profile has all potions/elixirs and their respective number to restock. PVP profile still need to have the
-potions but with the amount set to 0. When you visit the bank with the PVP profile the addon will put all
-potions/elixirs into bank and restock on your PVP profile items.
+Useful for maintaining different vendor-restock quantities for PvE, PvP, and other activities.
 
-### Restocks from
+### Restocks from vendors
 
-- Vendor
-- Bank *(Hold shift to temp disable restocking)*
+Bank restocking is temporarily unavailable while its transfer engine is being rewritten.
 
 ### Full poisons support!
 
 - Disabled in WotLK as poisons are now vendor stock.
-- Will restock poisons from bank.
 - Will restock poison reagents from vendor when you are below 50% of your set poisons
 
 **/rs** or **/restocker** to toggle window.

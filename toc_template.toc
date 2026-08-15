@@ -1,7 +1,7 @@
 ## Interface: ${UI_VERSION}
 ## Title: ${ADDON_TITLE}
 ## Author: kvakvs; original author RainForDays
-## Notes: Restock items automatically from vendors and manage bag/bank balance
+## Notes: Restock items automatically from vendors
 ## Version: ${VERSION}
 ## DefaultState: enabled
 ## SavedVariablesPerCharacter: RestockerSettings
@@ -34,13 +34,10 @@ Src\Settings.lua
 Frames\AceMainFrame.lua
 Frames\LegacyOptionsPanel.lua
 
-Src\Bank.lua
 Src\Merchant.lua
 Src\Item.lua
 Src\Cache.lua
 Src\Inspect.lua
-Src\Bag.lua
-Src\Inventory.lua
 
 
 #

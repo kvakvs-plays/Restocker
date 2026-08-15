@@ -1,12 +1,9 @@
 ---@class RsModuleModule
 ---@field addonOptionsModule RsAddonOptionsModule
 ---@field aceMainFrameModule RsAceMainFrameModule
----@field bagModule RsBagModule
----@field bankModule RsBankModule
 ---@field buyCommandModule RsBuyCommandModule
 ---@field buyIngredientsModule RsBuyIngredientsModule
 ---@field eventsModule RsEventsModule
----@field inventoryModule RsInventoryModule
 ---@field itemModule RsItemModule
 ---@field merchantModule RsMerchantModule
 ---@field recipeModule RsRecipeModule
@@ -15,13 +12,10 @@
 local rsModule = {
   aceMainFrameModule = {},
   addonOptionsModule = {},
-  bagModule = {},
-  bankModule = {},
   buyCommandModule = {},
   buyIngredientsModule = {},
   eventsModule = {},
   itemModule = {},
-  inventoryModule = {},
   merchantModule = {},
   recipeModule = {},
   restockerModule = {},

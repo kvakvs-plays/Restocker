@@ -8,7 +8,6 @@ restockerModule.settings = --[[---@type RsSettings]] {}
 local restockItemList = {} ---@type RsTradeCommand[]
 
 local aceMainFrameModule = RsModule.aceMainFrameModule
-local bankModule = RsModule.bankModule
 local eventsModule = RsModule.eventsModule
 local merchantModule = RsModule.merchantModule
 local addonOptionsModule = RsModule.addonOptionsModule
@@ -215,10 +214,6 @@ function RS:ChangeProfile(newProfile)
   RS:Update()
   RS:Print("Current profile: " .. newProfile)
 
-  if bankModule.bankIsOpen then
-    eventsModule.OnBankOpen(true)
-  end
-
   if merchantModule.merchantIsOpen then
     eventsModule.OnMerchantShow()
   end
@@ -288,7 +283,6 @@ function RS:loadSettings()
   settings.aceFrameStatus.width = math.max(settings.aceFrameStatus.width or RS.defaults.mainFrameWidth,
     RS.defaults.mainFrameWidth)
   settings.aceFrameStatus.height = settings.aceFrameStatus.height or 500
-  settings.autoOpenAtBank = settings.autoOpenAtBank or false
   settings.autoOpenAtMerchant = settings.autoOpenAtMerchant or false
 
   if settings.loginMessage == nil then
@@ -353,7 +347,7 @@ RS.ICON_FORMAT = "|T%s:0:0:0:0:64:64:4:60:4:60|t"
 
 ---Creates a string which will display a picture in a FontString
 ---@param texture string - path to UI texture file (for example can come from
----  GetContainerItemInfo(bag, slot) or spell info etc
+---  item APIs or spell info etc
 function RS.FormatTexture(texture)
   return string.format(RS.ICON_FORMAT, texture)
 end
@@ -436,24 +430,6 @@ function restockerModule:Color(hex, text)
   return "|cff" .. hex .. text .. "|r"
 end
 
---- Compatibility layer for function deprecated in 10.0
-function restockerModule:GetContainerNumSlots(containerId)
-  if C_Container then
-    return C_Container.GetContainerNumSlots(containerId)
-  else
-    return GetContainerNumSlots(containerId)
-  end
-end
-
---- @return number, number "freeSlots, bagFamily"
-function restockerModule:GetContainerNumFreeSlots(containerId)
-  if C_Container then
-    return C_Container.GetContainerNumFreeSlots(containerId)
-  else
-    return GetContainerNumFreeSlots(containerId)
-  end
-end
-
 ---@class RsMerchantItemInfoResult
 ---@field name string? 	
 ---@field texture number|string	
@@ -486,38 +462,6 @@ function restockerModule:GetMerchantItemInfo(index)
       currencyID = currencyID,
       spellID = spellID,
       isQuestStartItem = isQuestStartItem,
-    }
-  end
-end
-
----@class RsGetContainerItemInfoResult
----@field iconFileID 	number 	
----@field stackCount 	number 	
----@field isLocked 	boolean 	
----@field quality 	Enum.ItemQuality? 	
----@field isReadable 	boolean 	
----@field hasLoot 	boolean 	
----@field hyperlink 	string 	Hyperlink
----@field isFiltered 	boolean 	
----@field hasNoValue 	boolean 	
----@field itemID 	number 	
----@field isBound 	boolean 	
-
-function restockerModule:GetContainerItemInfo(bagId, slot)
-  if C_Container then
-    return C_Container.GetContainerItemInfo(bagId, slot)
-  else
-    -- icon, itemCount, locked, quality, readable, lootable, itemLink, isFiltered, noValue, itemID, isBound = GetContainerItemInfo(bagID, slot)
-    local icon, itemCount, locked, quality, readable, lootable, itemLink, isFiltered,
-    noValue, itemID, isBound = GetContainerItemInfo(bagId, slot)
-    return { --- @type RsGetContainerItemInfoResult
-      iconFileID = icon,
-      stackCount = itemCount,
-      isLocked = locked,
-      quality = quality,
-      isReadable = readable,
-      hasLoot = lootable,
-      hyperlink = itemLink,
     }
   end
 end

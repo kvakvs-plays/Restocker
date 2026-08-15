@@ -4,7 +4,6 @@
 ---@class RestockerAddon
 ---@field RegisterEvent function
 ---@field buying boolean Currently buying is in progress
----@field minorChange boolean Bank open event sets this; Unused
 ---@field addItemWait {[number|string]: boolean|nil} Item ids waiting for resolution to be added to the buy list
 ---@field addonName string
 ---@field BAG_ICON string
@@ -15,7 +14,6 @@
 ---@field EventFrame WowControl Hidden frame for addon events
 ---@field loaded boolean
 ---@field merchantIsOpen boolean
----@field onUpdateFrame table Hidden frame for addon events
 ---@field optionsPanel table
 ---@field Print function
 ---@field restockedItems boolean
@@ -40,7 +38,7 @@
 ---@field default RsTradeCommand[]|nil
 
 ---@class RsSettings
----@field autoOpenAtBank boolean
+---@field autoOpenAtBank boolean|nil Dormant bank preference retained for a future rewrite
 ---@field autoOpenAtMerchant boolean
 ---@field currentProfile string
 ---@field aceFrameStatus table AceGUI frame position and size

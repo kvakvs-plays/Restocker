@@ -11,7 +11,6 @@ local merchantModule = RsModule.merchantModule
 merchantModule.merchantIsOpen = false
 merchantModule.lastTimeRestocked = GetTime()
 
-local bagModule = RsModule.bagModule
 local buyIngredientsModule = RsModule.buyIngredientsModule
 local buyItemModule = RsModule.buyCommandModule
 

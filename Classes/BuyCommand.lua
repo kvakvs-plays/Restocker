@@ -4,7 +4,7 @@
 ---@class RsBuyCommandModule
 local buyCommandModule = RsModule.buyCommandModule
 
----Order to bank-get, bank-put, buy or sell items depending on context
+---Per-item vendor restock command with dormant bank preferences retained in saved data
 ---@class RsTradeCommand
 ---@field amount number
 ---@field itemName string
@@ -12,8 +12,8 @@ local buyCommandModule = RsModule.buyCommandModule
 ---@field itemID number
 ---@field reaction number UnitReaction required to buy from vendor (4 neutral, 5 friendly, ... 8 exalted)
 ---@field buyFromMerchant boolean|nil Nil default true
----@field stashTobank boolean|nil Nil default false
----@field restockFromBank boolean|nil Nil default false
+---@field stashTobank boolean|nil Dormant bank preference retained for a future rewrite
+---@field restockFromBank boolean|nil Dormant bank preference retained for a future rewrite
 
 local buyItemClass = {}
 buyItemClass.__index = buyItemClass

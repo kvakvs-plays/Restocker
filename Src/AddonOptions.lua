@@ -26,9 +26,6 @@ addonOptionsModule.language = --[[---@type {[string]:string} ]] {
   ["options.short.autoOpenAtMerchant"] = "Open Restocker at merchant",
   ["options.long.autoOpenAtMerchant"] = "When visiting a merchant, Restocker window will open",
 
-  ["options.short.autoOpenAtBank"] = "Open Restocker at bank",
-  ["options.long.autoOpenAtBank"] = "When visiting a banker, Restocker window will open",
-
   ["options.short.profileName"] = "Create a new profile",
   ["options.long.profileName"] = "Type a profile name then click Okay to create",
   ["options.short.deleteProfileName"] = "Delete a profile",
@@ -57,11 +54,6 @@ addonOptionsModule.language = --[[---@type {[string]:string} ]] {
   --["options.short.restockSell"] = "Sell extra to merchants",
   --["options.long.restockSell"] = "When visiting a merchant and the player has too many of that item, extras will be sold. Use 0 as quantity to always sell all.",
   --
-  --["options.short.restockToBank"] = "Stash extra to bank",
-  --["options.long.restockToBank"] = "When visiting a bank, extra items will be sent to the bank bags. Use 0 as quantity to stash all.",
-  --
-  --["options.short.restockFromBank"] = "Restock from bank",
-  --["options.long.restockFromBank"] = "When visiting a bank, take items from bank attempting to maintain the necessary quantity in bags",
 }
 
 ---@param key string
@@ -122,7 +114,6 @@ function addonOptionsModule:CreateGeneralOptions()
     args = {
       displayLoginMessage = self:TemplateCheckbox("loginMessage", nil, nil, nil),
       autoOpenMerchant = self:TemplateCheckbox("autoOpenAtMerchant", nil, nil, nil),
-      autoOpenBank = self:TemplateCheckbox("autoOpenAtBank", nil, nil, nil),
       sortList = self:TemplateSelect("sortList", {
           ["alphabetic"] = _t("options.sortList.alphabetic"),
           ["numeric"] = _t("options.sortList.numeric"),
@@ -207,11 +198,8 @@ end
 function addonOptionsModule:ResetDefaultOptions()
   restockerModule.settings.loginMessage = true
   restockerModule.settings.autoOpenAtMerchant = false
-  restockerModule.settings.autoOpenAtBank = false
   restockerModule.settings.slashCommand = "both"
   RS:RegisterSlashCommands()
-  --restockerModule.settings.restockFromBank = true
-  --restockerModule.settings.restockToBank = false
   --restockerModule.settings.restockFromMerchant = true
   --restockerModule.settings.restockSell = false
 end
