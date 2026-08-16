@@ -18,26 +18,30 @@ Source of truth: `toc_template.toc`. Generated TOCs should keep the same Lua loa
 8. `Classes\RestockerConf.lua`
 9. `Classes\Recipe.lua`
 10. `Src\BuyIngredients.lua`
-11. `Src\Events.lua`
-12. `Src\AddonOptions.lua`
-13. `Src\Settings.lua`
-14. `Frames\AceMainFrame.lua`
-15. `Frames\LegacyOptionsPanel.lua`
-16. `Src\Merchant.lua`
-17. `Src\Item.lua`
-18. `Src\Cache.lua`
-19. `Src\Inspect.lua`
+11. `Src\BankPlanner.lua`
+12. `Src\BankContainers.lua`
+13. `Src\Bank.lua`
+14. `Src\Events.lua`
+15. `Src\AddonOptions.lua`
+16. `Src\Settings.lua`
+17. `Frames\AceMainFrame.lua`
+18. `Frames\LegacyOptionsPanel.lua`
+19. `Src\Merchant.lua`
+20. `Src\Item.lua`
+21. `Src\Cache.lua`
+22. `Src\Inspect.lua`
 
 ## Runtime Shape
 
-- `RsModule` is the shared module registry. Runtime modules attach methods to tables such as `RsModule.merchantModule` and `RsModule.addonOptionsModule`.
-- `RS_ADDON` is the AceAddon instance created in `Src\Restocker.lua` with AceConsole and AceEvent mixed in.
+- `RsModule` is the shared module registry. Runtime modules attach methods to tables such as `RsModule.bankModule`, `RsModule.merchantModule`, and `RsModule.addonOptionsModule`.
+- `RS_ADDON` is the AceAddon instance created in `Src\Restocker.lua` with AceConsole, AceEvent, and AceTimer mixed in.
 - Saved variables are per-character in `RestockerSettings`, declared in TOCs as `## SavedVariablesPerCharacter: RestockerSettings`.
 - Main user flows:
   - Startup: `RS:OnInitialize()` detects versions, `RS:OnEnable()` loads settings, registers slash commands, initializes events/modules/UI/options.
   - Merchant restock: `MERCHANT_SHOW` -> `eventsModule.OnMerchantShow()` -> `merchantModule:Restock()`.
+  - Bank restock: `BANKFRAME_OPENED` -> `bankModule:Open()` -> snapshot/planner -> one explicit transfer -> bank/bag event confirmation -> rescan and replan.
   - Item add: Ace main-frame edit box/button/shift-click/drag-drop -> `RS:addItem()` -> `RS.GetItemInfo()` cache -> profile item list -> `RS:Update()`.
-- Bank restocking is intentionally unavailable pending the rewrite specified in `rewrite.md`; dormant saved preferences are retained.
+- Bank storage policy is saved per profile in `settings.bankStorageByProfile`; character bank is the migration default and account-bank policies are Mainline-only.
 
 ## Addon Files
 
@@ -117,7 +121,7 @@ Functions:
 
 ### `Classes\BuyCommand.lua`
 
-Feature: creates merchant restock item command records; dormant bank fields remain on saved records for the future rewrite.
+Feature: creates merchant and bank restock item command records.
 
 Functions:
 - `buyCommandModule:Create(amount, itemName, itemID, itemLink)`
@@ -152,14 +156,56 @@ Functions:
 - `forEachIngredient(i)`
 - `buyIngredientsModule.OnModuleInit()`
 
+### `Src\BankPlanner.lua`
+
+Feature: pure item-ID delta planner for deposits and withdrawals across selected storage pools.
+
+Functions:
+- `bankPlannerModule:IsValidStoragePolicy(policy)`
+- `bankPlannerModule:GetStorageKinds(policy)`
+- `getSummaryCount(snapshot, kind, itemID)`
+- `bankPlannerModule:BuildTasks(profile, snapshot, policy, blockedTasks)`
+
+### `Src\BankContainers.lua`
+
+Feature: flavor-aware bag/bank discovery, inventory snapshots, deterministic source/destination selection, and explicit cursor transfers.
+
+Functions:
+- `bankContainerModule:SupportsAccountBank()`
+- `bankContainerModule:GetContainerIds(kind)`
+- `bankContainerModule:ScanGroup(kind)`
+- `bankContainerModule:CreateSnapshot(policy)`
+- `bankContainerModule:GetMaxStack(itemID)`
+- `bankContainerModule:FindAction(task, snapshot)`
+- `bankContainerModule:ExecuteAction(action)`
+
+### `Src\Bank.lua`
+
+Feature: event-driven bank transfer executor with status reporting, confirmation timeouts, bounded retries, replanning, and safe cancellation.
+
+Functions:
+- `bankModule.OnModuleInit()`
+- `bankModule:SetStatus(message, printMessage)`
+- `bankModule:Open()`
+- `bankModule:Close()`
+- `bankModule:Restart()`
+- `bankModule:StartAction(action, snapshot)`
+- `bankModule:ProcessNext()`
+- `bankModule:ConfirmPending(timedOut)`
+- `bankModule:OnInventoryChanged()`
+- `bankModule:OnUiError(message)`
+
 ### `Src\Events.lua`
 
-Feature: registers WoW events and routes them into merchant, cache, and saved-position behavior.
+Feature: registers WoW events and routes them into merchant, bank, cache, and saved-position behavior.
 
 Functions:
 - `eventsModule.OnEnteringWorld(login, reloadui)`
 - `eventsModule.OnMerchantShow()`
 - `eventsModule.OnMerchantClose()`
+- `eventsModule.OnBankOpen()`
+- `eventsModule.OnBankClose()`
+- `eventsModule.OnBankInventoryChanged()`
 - `eventsModule.OnItemInfoReceived(itemID, success)`
 - `eventsModule.OnLogout()`
 - `eventsModule.OnUiErrorMessage(id, message)`
@@ -191,9 +237,14 @@ Functions:
 
 ### `Src\Settings.lua`
 
-Feature: profile CRUD helpers used by AceConfig options.
+Feature: versioned settings migration, per-profile bank storage policy, and profile CRUD helpers.
 
 Functions:
+- `settingsModule:Migrate(settings)`
+- `settingsModule:GetBankStorage(profileName)`
+- `settingsModule:SetBankStorage(profileName, policy)`
+- `settingsModule:RenameBankStorage(oldName, newName)`
+- `settingsModule:CopyBankStorage(sourceName, destinationName)`
 - `settingsModule:AddProfile(name)`
 - `settingsModule:DeleteProfile(name)`
 - `settingsModule:GetProfileNames()`
@@ -207,9 +258,11 @@ Functions:
 - `addItemFromText(text)`
 - `addCursorItem()`
 - `installDropTarget(frame)`
+- `refreshAfterBankSensitiveChange()`
 - `createProfileList()`
 - `removeItem(itemToRemove)`
 - `aceMainFrameModule:GetOrCreateFrame()`
+- `aceMainFrameModule:SetStatus(message)`
 - `aceMainFrameModule:IsShown()`
 - `aceMainFrameModule:Show()`
 - `aceMainFrameModule:Hide()`
@@ -229,6 +282,7 @@ Functions:
 - `RS:CreateOptionsMenu(name)`
 - `loginMessage.OnClick(self, button)`
 - `autoOpenAtMerchant.OnClick(self, button)`
+- `autoOpenAtBank.OnClick(self, button)`
 - `sortListAlphabetically.OnClick(self, button)`
 - `sortListNumerically.OnClick(self, button)`
 - `addProfileButton.OnClick(self, button, down)`
@@ -394,6 +448,7 @@ Functions:
 - `RS:Show()`, `RS:Hide()`, and `RS:Toggle()` delegate to `aceMainFrameModule`.
 - `Frames\AceMainFrame.lua` creates an AceGUI `Frame` and stores size/position in `restockerModule.settings.aceFrameStatus`.
 - Profile dropdown values come from `restockerModule.settings.profiles`; selecting a profile calls `RS:ChangeProfile(profileName)`.
+- Bank storage dropdown reads/writes the active profile's `"character"`, `"account"`, or `"both"` policy; account choices appear only on supported Mainline clients.
 - Add controls:
   - Add edit box `OnEnterPressed` calls `RS:addItem(text)`.
   - Add button reads the AceGUI edit box text and calls `RS:addItem(text)`.
@@ -405,8 +460,10 @@ Functions:
 
 - `Frames\AceMainFrame.lua` rebuilds visible rows from the sorted active profile list supplied by `RS:Update()`.
 - Each row writes directly to the active `RsTradeCommand`:
-  - amount edit box writes `item.amount`; enter/OK refreshes the UI.
+  - amount edit box writes `item.amount`; enter/OK refreshes the UI and replans an open bank session.
   - auto-buy checkbox writes `item.buyFromMerchant`, with nil/true displayed as enabled.
+  - stash-to-bank checkbox writes `item.stashTobank`.
+  - restock-from-bank checkbox writes `item.restockFromBank`.
   - required-reputation dropdown writes numeric `item.reaction` values `0`, `4`, `5`, `6`, `7`, or `8`.
   - delete button removes the item from the active profile and calls `RS:Update()`.
 
@@ -416,6 +473,7 @@ Functions:
 - General options in `Src\AddonOptions.lua`:
   - `loginMessage` toggle writes `restockerModule.settings.loginMessage`.
   - `autoOpenAtMerchant` toggle writes `restockerModule.settings.autoOpenAtMerchant`.
+  - `autoOpenAtBank` toggle writes `restockerModule.settings.autoOpenAtBank`.
   - `sortList` radio select sets `RS.sortListAlphabetically`/`RS.sortListNumerically` and calls `RS:Update()`.
   - `slashCommand` radio select writes `restockerModule.settings.slashCommand`, calls `RS:RegisterSlashCommands()`, and prints the active command note.
   - `debugMessages` toggle writes `restockerModule.settings.debugMessages`.
@@ -449,11 +507,18 @@ Functions:
 - `eventsModule:InitEvents()` registers these handlers on the AceEvent addon object:
   - `MERCHANT_SHOW` -> `eventsModule.OnMerchantShow()`
   - `MERCHANT_CLOSED` -> `eventsModule.OnMerchantClose()`
+  - `BANKFRAME_OPENED` -> `eventsModule.OnBankOpen()`
+  - `BANKFRAME_CLOSED` -> `eventsModule.OnBankClose()`
+  - `BAG_UPDATE_DELAYED`, `ITEM_LOCK_CHANGED`, `PLAYERBANKSLOTS_CHANGED`, and `PLAYERBANKBAGSLOTS_CHANGED` -> `eventsModule.OnBankInventoryChanged()`
   - `GET_ITEM_INFO_RECEIVED` -> `eventsModule.OnItemInfoReceived(itemID, success)`
   - `PLAYER_LOGOUT` -> `eventsModule.OnLogout()`
   - `PLAYER_ENTERING_WORLD` -> `eventsModule.OnEnteringWorld(login, reloadui)`
   - `UI_ERROR_MESSAGE` -> `eventsModule.OnUiErrorMessage(id, message)`
-- `RsModule:CallInEachModule("OnModuleInit", nil)` invokes module init hooks such as `buyIngredientsModule.OnModuleInit()`.
+- `RsModule:CallInEachModule("OnModuleInit", nil)` invokes module init hooks such as `bankModule.OnModuleInit()` and `buyIngredientsModule.OnModuleInit()`.
+
+## Tests
+
+- `lua Tests/run.lua` covers pure planning, settings migration and policy lifecycle, container discovery and split/merge execution, executor confirmation, and retry exhaustion.
 
 ## Embedded And Vendored Lua
 

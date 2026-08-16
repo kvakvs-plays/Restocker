@@ -12,8 +12,8 @@ local buyCommandModule = RsModule.buyCommandModule
 ---@field itemID number
 ---@field reaction number UnitReaction required to buy from vendor (4 neutral, 5 friendly, ... 8 exalted)
 ---@field buyFromMerchant boolean|nil Nil default true
----@field stashTobank boolean|nil Dormant bank preference retained for a future rewrite
----@field restockFromBank boolean|nil Dormant bank preference retained for a future rewrite
+---@field stashTobank boolean|nil Nil defaults to false
+---@field restockFromBank boolean|nil Nil defaults to false
 
 local buyItemClass = {}
 buyItemClass.__index = buyItemClass

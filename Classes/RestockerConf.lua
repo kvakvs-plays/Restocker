@@ -6,8 +6,8 @@
 ---@field profiles table<string, table<string, number>>
 ---@field currentProfile string
 ---@field autoBuy boolean
----@field restockFromBank boolean Dormant bank preference retained for a future rewrite
----@field autoOpenAtBank boolean Dormant bank preference retained for a future rewrite
+---@field restockFromBank boolean
+---@field autoOpenAtBank boolean
 ---@field autoOpenAtMerchant boolean
 ---@field loginMessage boolean
 

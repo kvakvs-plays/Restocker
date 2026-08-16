@@ -14,13 +14,18 @@ rainfordays @github / ChiliFajita @curseforge.
 Full support for profiles.
 Useful for maintaining different vendor-restock quantities for PvE, PvP, and other activities.
 
-### Restocks from vendors
+### Restocks from
 
-Bank restocking is temporarily unavailable while its transfer engine is being rewritten.
+- Vendors *(Hold Shift to skip when opening a merchant)*
+- Character bank *(Hold Shift to skip when opening a bank)*
+- Account bank on supported Mainline clients
+
+Bank transfers maintain each item's configured quantity in player bags. Deposits and withdrawals are enabled independently per item, and bank storage is selected per profile.
 
 ### Full poisons support!
 
 - Disabled in WotLK as poisons are now vendor stock.
+- Can restock poisons from the selected bank storage.
 - Will restock poison reagents from vendor when you are below 50% of your set poisons
 
 **/rs** or **/restocker** to toggle window.

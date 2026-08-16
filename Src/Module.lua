@@ -1,6 +1,9 @@
 ---@class RsModuleModule
 ---@field addonOptionsModule RsAddonOptionsModule
 ---@field aceMainFrameModule RsAceMainFrameModule
+---@field bankContainerModule RsBankContainerModule
+---@field bankModule RsBankModule
+---@field bankPlannerModule RsBankPlannerModule
 ---@field buyCommandModule RsBuyCommandModule
 ---@field buyIngredientsModule RsBuyIngredientsModule
 ---@field eventsModule RsEventsModule
@@ -12,6 +15,9 @@
 local rsModule = {
   aceMainFrameModule = {},
   addonOptionsModule = {},
+  bankContainerModule = {},
+  bankModule = {},
+  bankPlannerModule = {},
   buyCommandModule = {},
   buyIngredientsModule = {},
   eventsModule = {},

@@ -5,7 +5,10 @@ local RS = RS_ADDON ---@type RestockerAddon
 ---@field frame table|nil AceGUI Frame widget
 ---@field addItemEditBox table|nil AceGUI EditBox widget
 local aceMainFrameModule = RsModule.aceMainFrameModule ---@type RsAceMainFrameModule
+local bankContainerModule = RsModule.bankContainerModule ---@type RsBankContainerModule
+local bankModule = RsModule.bankModule ---@type RsBankModule
 local restockerModule = RsModule.restockerModule ---@type RsRestockerModule
+local settingsModule = RsModule.settingsModule ---@type RsSettingsModule
 
 local AceGUI = LibStub("AceGUI-3.0")
 
@@ -18,6 +21,12 @@ local reputationList = {
   [8] = "Exalted"
 }
 local reputationOrder = { 0, 4, 5, 6, 7, 8 }
+
+local bankStorageList = {
+  character = "Character bank",
+  account = "Account bank",
+  both = "Character + account",
+}
 
 local function getCurrentProfile()
   local settings = restockerModule.settings
@@ -55,6 +64,13 @@ local function installDropTarget(frame)
   end)
 end
 
+local function refreshAfterBankSensitiveChange()
+  RS:Update()
+  if bankModule.bankIsOpen then
+    bankModule:Restart()
+  end
+end
+
 local function createProfileList()
   local settings = restockerModule.settings
   local profileList = {}
@@ -75,7 +91,7 @@ local function removeItem(itemToRemove)
   for i, item in ipairs(profile) do
     if item == itemToRemove then
       tremove(profile, i)
-      RS:Update()
+      refreshAfterBankSensitiveChange()
       return
     end
   end
@@ -91,7 +107,7 @@ function aceMainFrameModule:GetOrCreateFrame()
 
   local frame = AceGUI:Create("Frame")
   frame:SetTitle("Restocker")
-  frame:SetStatusText("")
+  frame:SetStatusText(bankModule.status or "")
   frame:SetStatusTable(settings.aceFrameStatus)
   frame:SetLayout("Flow")
 
@@ -100,6 +116,12 @@ function aceMainFrameModule:GetOrCreateFrame()
 
   self.frame = frame
   return frame
+end
+
+function aceMainFrameModule:SetStatus(message)
+  if self.frame then
+    self.frame:SetStatusText(message or "")
+  end
 end
 
 function aceMainFrameModule:IsShown()
@@ -155,6 +177,26 @@ function aceMainFrameModule:CreateToolbar(parent)
   end)
   parent:AddChild(profileDropDown)
 
+  local bankStorageOrder = { "character" }
+  local bankStorageValues = { character = bankStorageList.character }
+  if bankContainerModule:SupportsAccountBank() then
+    bankStorageValues.account = bankStorageList.account
+    bankStorageValues.both = bankStorageList.both
+    table.insert(bankStorageOrder, "account")
+    table.insert(bankStorageOrder, "both")
+  end
+
+  local bankStorageDropDown = AceGUI:Create("Dropdown")
+  bankStorageDropDown:SetLabel("Bank storage")
+  bankStorageDropDown:SetList(bankStorageValues, bankStorageOrder)
+  bankStorageDropDown:SetValue(settingsModule:GetBankStorage(settings.currentProfile))
+  bankStorageDropDown:SetWidth(180)
+  bankStorageDropDown:SetCallback("OnValueChanged", function(_widget, _event, policy)
+    settingsModule:SetBankStorage(settings.currentProfile, policy)
+    refreshAfterBankSensitiveChange()
+  end)
+  parent:AddChild(bankStorageDropDown)
+
   local settingsButton = AceGUI:Create("Button")
   settingsButton:SetText("Settings")
   settingsButton:SetWidth(90)
@@ -208,6 +250,16 @@ function aceMainFrameModule:CreateListHeader(parent)
   buyLabel:SetWidth(70)
   row:AddChild(buyLabel)
 
+  local toBankLabel = AceGUI:Create("Label")
+  toBankLabel:SetText("To bank")
+  toBankLabel:SetWidth(90)
+  row:AddChild(toBankLabel)
+
+  local fromBankLabel = AceGUI:Create("Label")
+  fromBankLabel:SetText("From bank")
+  fromBankLabel:SetWidth(105)
+  row:AddChild(fromBankLabel)
+
   local reputationLabel = AceGUI:Create("Label")
   reputationLabel:SetText("Vendor rep")
   reputationLabel:SetWidth(130)
@@ -243,7 +295,7 @@ function aceMainFrameModule:CreateItemRow(parent, item)
     item.amount = tonumber(value) or 0
     widget:SetText(tostring(item.amount))
     AceGUI:ClearFocus()
-    RS:Update()
+    refreshAfterBankSensitiveChange()
   end)
   row:AddChild(amountBox)
 
@@ -256,6 +308,26 @@ function aceMainFrameModule:CreateItemRow(parent, item)
     RS:Update()
   end)
   row:AddChild(buyCheckBox)
+
+  local toBankCheckBox = AceGUI:Create("CheckBox")
+  toBankCheckBox:SetLabel("")
+  toBankCheckBox:SetWidth(90)
+  toBankCheckBox:SetValue(item.stashTobank and true or false)
+  toBankCheckBox:SetCallback("OnValueChanged", function(_widget, _event, value)
+    item.stashTobank = value
+    refreshAfterBankSensitiveChange()
+  end)
+  row:AddChild(toBankCheckBox)
+
+  local fromBankCheckBox = AceGUI:Create("CheckBox")
+  fromBankCheckBox:SetLabel("")
+  fromBankCheckBox:SetWidth(105)
+  fromBankCheckBox:SetValue(item.restockFromBank and true or false)
+  fromBankCheckBox:SetCallback("OnValueChanged", function(_widget, _event, value)
+    item.restockFromBank = value
+    refreshAfterBankSensitiveChange()
+  end)
+  row:AddChild(fromBankCheckBox)
 
   local reputationDropDown = AceGUI:Create("Dropdown")
   reputationDropDown:SetList(reputationList, reputationOrder)

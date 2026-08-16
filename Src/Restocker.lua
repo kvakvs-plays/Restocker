@@ -8,13 +8,15 @@ restockerModule.settings = --[[---@type RsSettings]] {}
 local restockItemList = {} ---@type RsTradeCommand[]
 
 local aceMainFrameModule = RsModule.aceMainFrameModule
+local bankModule = RsModule.bankModule
 local eventsModule = RsModule.eventsModule
 local merchantModule = RsModule.merchantModule
 local addonOptionsModule = RsModule.addonOptionsModule
 local envModule = KvModuleManager.envModule
+local settingsModule = RsModule.settingsModule
 
 local RS = --[[---@type RestockerAddon]] LibStub("AceAddon-3.0"):NewAddon(
-  "Restocker", "AceConsole-3.0", "AceEvent-3.0")
+  "Restocker", "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0")
 RS_ADDON = RS ---@type RestockerAddon
 
 RS.defaults = {
@@ -149,6 +151,7 @@ function RS:AddProfile(newProfile)
   local settings = restockerModule.settings
   settings.currentProfile = newProfile ---@type string
   settings.profiles[newProfile] = {} ---@type RsTradeCommand
+  settingsModule:SetBankStorage(newProfile, "character")
 
   aceMainFrameModule:Show()
   RS:Update()
@@ -170,15 +173,19 @@ function RS:DeleteProfile(profile)
   if currentProfile == profile then
     if profileCount > 1 then
       settings.profiles[currentProfile] = nil
+      settings.bankStorageByProfile[currentProfile] = nil
       local firstKey, _ = next(settings.profiles)
       settings.currentProfile = --[[---@not nil]] firstKey
     else
       settings.profiles[currentProfile] = nil
+      settings.bankStorageByProfile[currentProfile] = nil
       settings.currentProfile = "default"
       settings.profiles.default = {}
+      settingsModule:SetBankStorage("default", "character")
     end
   else
     settings.profiles[profile] = nil
+    settings.bankStorageByProfile[profile] = nil
   end
 
   if RS.optionsPanel and RS.optionsPanel.deleteProfileMenu then
@@ -199,6 +206,7 @@ function RS:RenameCurrentProfile(newName)
 
   settings.profiles[newName] = settings.profiles[currentProfile]
   settings.profiles[currentProfile] = nil
+  settingsModule:RenameBankStorage(currentProfile, newName)
 
   settings.currentProfile = newName
   RS:Update()
@@ -217,6 +225,9 @@ function RS:ChangeProfile(newProfile)
   if merchantModule.merchantIsOpen then
     eventsModule.OnMerchantShow()
   end
+  if bankModule.bankIsOpen then
+    bankModule:Restart()
+  end
 end
 
 --[[
@@ -228,6 +239,7 @@ function RS:CopyProfile(profileToCopy)
 
   local copyProfile = CopyTable(settings.profiles[profileToCopy])
   settings.profiles[settings.currentProfile] = copyProfile
+  settingsModule:CopyBankStorage(profileToCopy, settings.currentProfile)
 
   RS:Update()
 end
@@ -283,6 +295,9 @@ function RS:loadSettings()
   settings.aceFrameStatus.width = math.max(settings.aceFrameStatus.width or RS.defaults.mainFrameWidth,
     RS.defaults.mainFrameWidth)
   settings.aceFrameStatus.height = settings.aceFrameStatus.height or 500
+  if settings.autoOpenAtBank == nil then
+    settings.autoOpenAtBank = false
+  end
   settings.autoOpenAtMerchant = settings.autoOpenAtMerchant or false
 
   if settings.loginMessage == nil then
@@ -293,6 +308,8 @@ function RS:loadSettings()
   if settings.slashCommand == nil then
     settings.slashCommand = "both"
   end
+
+  settingsModule:Migrate(settings)
 end
 
 --[[

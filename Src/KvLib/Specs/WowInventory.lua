@@ -26,6 +26,42 @@
 ---@field ContainerIDToInventoryID fun(bag: number): number
 C_Container = {}
 
+---@param bag number
+---@return number
+function GetContainerNumSlots(bag)
+  return 0
+end
+
+---@param bag number
+---@return number, number
+function GetContainerNumFreeSlots(bag)
+  return 0, 0
+end
+
+---@param bag number
+---@param slot number
+---@return string, number, boolean, number, boolean, boolean, string, boolean, boolean, number, boolean
+function GetContainerItemInfo(bag, slot)
+  return "", 0, false, 0, false, false, "", false, false, 0, false
+end
+
+---@param bag number
+---@param slot number
+function PickupContainerItem(bag, slot)
+end
+
+---@param bag number
+---@param slot number
+---@param amount number
+function SplitContainerItem(bag, slot, amount)
+end
+
+---@param item number|string
+---@return number
+function GetItemFamily(item)
+  return 0
+end
+
 ---@return number, boolean
 ---@param u string
 ---@param slot number

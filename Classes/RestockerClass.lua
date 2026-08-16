@@ -3,6 +3,8 @@
 
 ---@class RestockerAddon
 ---@field RegisterEvent function
+---@field ScheduleTimer function
+---@field CancelTimer function
 ---@field buying boolean Currently buying is in progress
 ---@field addItemWait {[number|string]: boolean|nil} Item ids waiting for resolution to be added to the buy list
 ---@field addonName string
@@ -38,10 +40,12 @@
 ---@field default RsTradeCommand[]|nil
 
 ---@class RsSettings
----@field autoOpenAtBank boolean|nil Dormant bank preference retained for a future rewrite
+---@field autoOpenAtBank boolean
 ---@field autoOpenAtMerchant boolean
 ---@field currentProfile string
 ---@field aceFrameStatus table AceGUI frame position and size
 ---@field loginMessage boolean Show restocker hello message
 ---@field profiles RsProfileCollection
 ---@field debugMessages boolean
+---@field schemaVersion number
+---@field bankStorageByProfile table<string, RsBankStoragePolicy>

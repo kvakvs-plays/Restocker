@@ -3,6 +3,7 @@
 - New window for restocking settings
 - Window width and field width adjustments
 - Removed the legacy bank transfer engine and bank controls pending a reliable rewrite; saved bank preferences are retained.
+- Added the new event-driven bank engine with per-profile character/account storage, deterministic stack transfers, bounded retries, and restored bank controls.
 
 ## Restocker 2025.11.0
 

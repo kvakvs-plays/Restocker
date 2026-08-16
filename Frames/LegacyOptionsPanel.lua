@@ -48,9 +48,24 @@ function RS:CreateOptionsMenu(name)
   autoOpenAtMerchantText:SetText("Open window at vendor")
   optionsPanel.autoOpenAtMerchantText = autoOpenAtMerchantText
 
+  local autoOpenAtBank = CreateFrame("CheckButton", nil, optionsPanel, "UICheckButtonTemplate")
+  autoOpenAtBank:SetSize(25, 25)
+  autoOpenAtBank:SetPoint("TOPLEFT", autoOpenAtMerchant, "BOTTOMLEFT", 0, 0)
+  autoOpenAtBank:SetScript("OnClick", function(self, button)
+    settings.autoOpenAtBank = self:GetChecked()
+  end)
+  autoOpenAtBank:SetChecked(settings.autoOpenAtBank)
+  optionsPanel.autoOpenAtBank = autoOpenAtBank
+
+  local autoOpenAtBankText = autoOpenAtBank:CreateFontString(nil, "OVERLAY")
+  autoOpenAtBankText:SetFontObject("GameFontNormal")
+  autoOpenAtBankText:SetPoint("LEFT", autoOpenAtBank, "RIGHT", 3, 0)
+  autoOpenAtBankText:SetText("Open window at bank")
+  optionsPanel.autoOpenAtBankText = autoOpenAtBankText
+
   local sortListAlphabetically = CreateFrame("CheckButton", nil, optionsPanel, "UICheckButtonTemplate")
   sortListAlphabetically:SetSize(25, 25)
-  sortListAlphabetically:SetPoint("TOPLEFT", autoOpenAtMerchant, "BOTTOMLEFT", 0, 0)
+  sortListAlphabetically:SetPoint("TOPLEFT", autoOpenAtBank, "BOTTOMLEFT", 0, 0)
   sortListAlphabetically:SetScript("OnClick", function(self, button)
     RS.sortListAlphabetically = self:GetChecked()
     if self:GetChecked() then

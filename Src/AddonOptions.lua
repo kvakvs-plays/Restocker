@@ -26,6 +26,9 @@ addonOptionsModule.language = --[[---@type {[string]:string} ]] {
   ["options.short.autoOpenAtMerchant"] = "Open Restocker at merchant",
   ["options.long.autoOpenAtMerchant"] = "When visiting a merchant, Restocker window will open",
 
+  ["options.short.autoOpenAtBank"] = "Open Restocker at bank",
+  ["options.long.autoOpenAtBank"] = "When visiting a banker, Restocker window will open",
+
   ["options.short.profileName"] = "Create a new profile",
   ["options.long.profileName"] = "Type a profile name then click Okay to create",
   ["options.short.deleteProfileName"] = "Delete a profile",
@@ -114,6 +117,7 @@ function addonOptionsModule:CreateGeneralOptions()
     args = {
       displayLoginMessage = self:TemplateCheckbox("loginMessage", nil, nil, nil),
       autoOpenMerchant = self:TemplateCheckbox("autoOpenAtMerchant", nil, nil, nil),
+      autoOpenBank = self:TemplateCheckbox("autoOpenAtBank", nil, nil, nil),
       sortList = self:TemplateSelect("sortList", {
           ["alphabetic"] = _t("options.sortList.alphabetic"),
           ["numeric"] = _t("options.sortList.numeric"),
@@ -198,6 +202,7 @@ end
 function addonOptionsModule:ResetDefaultOptions()
   restockerModule.settings.loginMessage = true
   restockerModule.settings.autoOpenAtMerchant = false
+  restockerModule.settings.autoOpenAtBank = false
   restockerModule.settings.slashCommand = "both"
   RS:RegisterSlashCommands()
   --restockerModule.settings.restockFromMerchant = true

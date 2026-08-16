@@ -1,16 +1,18 @@
 # Bank Restocking Rewrite Plan
 
+Status: implemented in stage 2.
+
 ## Goal
 
 Reintroduce reliable, opt-in bank balancing after the legacy bank engine has been removed. The rewrite will maintain each configured item's target quantity in player bags while leaving all vendor restocking behavior unchanged.
 
-## Current baseline
+## Removal baseline
 
-The legacy implementation has been removed before starting the rewrite:
+The legacy implementation was removed before starting the rewrite:
 
 - Bank target calculation, task scheduling, coroutine pacing, stack scanning, splitting, placement, and best-fit helpers are no longer loaded.
-- Bank events, automatic bank-window behavior, and per-item bank controls are hidden during the rewrite hiatus.
-- `autoOpenAtBank`, `stashTobank`, and `restockFromBank` remain untouched in existing `RestockerSettings` data.
+- Bank events, automatic bank-window behavior, and per-item bank controls were hidden during the rewrite hiatus.
+- `autoOpenAtBank`, `stashTobank`, and `restockFromBank` remained untouched in existing `RestockerSettings` data.
 - Merchant purchase logic and the bank-aware crafting-reagent calculation remain behaviorally unchanged.
 
 ## Behavior and saved data

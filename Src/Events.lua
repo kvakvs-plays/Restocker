@@ -6,6 +6,7 @@ local eventsModule = RsModule.eventsModule
 
 local buyiModule = RsModule.buyIngredientsModule ---@type RsBuyIngredientsModule
 local aceMainFrameModule = RsModule.aceMainFrameModule ---@type RsAceMainFrameModule
+local bankModule = RsModule.bankModule ---@type RsBankModule
 local merchantModule = RsModule.merchantModule ---@type RsMerchantModule
 RS.loaded = false
 RS.addItemWait = {}
@@ -32,6 +33,18 @@ function eventsModule.OnMerchantClose()
   RS:Hide()
 end
 
+function eventsModule.OnBankOpen()
+  bankModule:Open()
+end
+
+function eventsModule.OnBankClose()
+  bankModule:Close()
+end
+
+function eventsModule.OnBankInventoryChanged()
+  bankModule:OnInventoryChanged()
+end
+
 ---@param itemID number
 ---@param success boolean
 function eventsModule.OnItemInfoReceived(itemID, success)
@@ -49,6 +62,10 @@ function eventsModule.OnItemInfoReceived(itemID, success)
     RS.addItemWait[itemID] = nil
     RS:addItem(itemID)
   end
+
+  if bankModule.bankIsOpen then
+    bankModule:OnInventoryChanged()
+  end
 end
 
 function eventsModule.OnLogout()
@@ -59,6 +76,7 @@ function eventsModule.OnUiErrorMessage(id, message)
   if id == 2 or id == 3 then
     -- Stop vendor purchases after an inventory-full error.
     RS.buying = false
+    bankModule:OnUiError(message)
   end
 end
 
@@ -66,6 +84,12 @@ function eventsModule:InitEvents()
   --RS:RegisterEvent("ADDON_LOADED", self.OnAddonLoaded);
   RS:RegisterEvent("MERCHANT_SHOW", self.OnMerchantShow);
   RS:RegisterEvent("MERCHANT_CLOSED", self.OnMerchantClose);
+  RS:RegisterEvent("BANKFRAME_OPENED", self.OnBankOpen)
+  RS:RegisterEvent("BANKFRAME_CLOSED", self.OnBankClose)
+  RS:RegisterEvent("BAG_UPDATE_DELAYED", self.OnBankInventoryChanged)
+  RS:RegisterEvent("ITEM_LOCK_CHANGED", self.OnBankInventoryChanged)
+  RS:RegisterEvent("PLAYERBANKSLOTS_CHANGED", self.OnBankInventoryChanged)
+  RS:RegisterEvent("PLAYERBANKBAGSLOTS_CHANGED", self.OnBankInventoryChanged)
   RS:RegisterEvent("GET_ITEM_INFO_RECEIVED", self.OnItemInfoReceived);
   RS:RegisterEvent("PLAYER_LOGOUT", self.OnLogout);
   RS:RegisterEvent("PLAYER_ENTERING_WORLD", self.OnEnteringWorld);
